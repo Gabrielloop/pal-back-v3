@@ -4,7 +4,13 @@ use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 
+use Illuminate\Auth\AuthenticationException;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Validation\ValidationException;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+
 use App\Http\Middleware\LogUserCrud;
+use App\Http\Middleware\ForceJsonResponse;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -14,26 +20,60 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
-        // middleware de log global pour toutes les requêtes
+        // Middlewares globaux (toutes les requêtes)
         $middleware->append(LogUserCrud::class);
-        // version alias
+
+        // Alias personnalisés
         $middleware->alias([
             'log.crud' => LogUserCrud::class,
         ]);
 
-        // $middleware->web([
-        //     // \App\Http\Middleware\EncryptCookies::class,
-        //     // \Illuminate\Session\Middleware\StartSession::class,
-        //     // \Illuminate\View\Middleware\ShareErrorsFromSession::class,
-        //     // \App\Http\Middleware\VerifyCsrfToken::class,
-        //     // \Illuminate\Routing\Middleware\SubstituteBindings::class,
-        // ]);
-        // $middleware->api([
-        //     // \Illuminate\Routing\Middleware\SubstituteBindings::class,
-        // ]);
-        // $middleware->groupe('web', [...]);
-        // $middleware-> alias('log.crud', LogUserCrud::class);
+        // Groupe API
+        $middleware->group('api', [
+            ForceJsonResponse::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
-        //
-    })->create();
+        // 404 : modèle ou route introuvable
+        $exceptions->render(function (ModelNotFoundException|NotFoundHttpException $e, $request) {
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Ressource introuvable.',
+                ], 404);
+            }
+        });
+
+        // 422 : erreur de validation
+        $exceptions->render(function (ValidationException $e, $request) {
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Erreur de validation.',
+                    'errors' => $e->errors(),
+                ], 422);
+            }
+        });
+
+        // 401 : non authentifié
+        $exceptions->render(function (AuthenticationException $e, $request) {
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Non authentifié.',
+                ], 401);
+            }
+        });
+
+        // 500 : erreur interne
+        $exceptions->render(function (Throwable $e, $request) {
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Erreur interne.',
+                    'error' => config('app.debug') ? $e->getMessage() : null,
+                ], 500);
+            }
+        });
+    })
+    ->create();

@@ -1,10 +1,10 @@
 <?php
+
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
 
 /**
  * @OA\Tag(
@@ -17,6 +17,7 @@ class UserController extends Controller
     /**
      * @OA\Get(
      *     path="/api/users",
+     * 
      *     tags={"Users"},
      *     summary="Liste tous les utilisateurs",
      *     @OA\Response(
@@ -27,7 +28,11 @@ class UserController extends Controller
      */
     public function index()
     {
-        return response()->json(User::all(), 200);
+        return response()->json([
+            'success' => true,
+            'message' => 'Liste des utilisateurs',
+            'data' => User::all()
+        ]);
     }
 
     /**
@@ -69,7 +74,11 @@ class UserController extends Controller
             'password' => $validated['password'],
         ]);
 
-        return response()->json($user, 201);
+        return response()->json([
+            'success' => true,
+            'message' => 'Utilisateur créé avec succès',
+            'data' => $user,
+        ], 201);
     }
 
     /**
@@ -93,9 +102,15 @@ class UserController extends Controller
      *     )
      * )
      */
-    public function show(User $user)
+    public function show($id)
     {
-        return response()->json($user);
+        $user = User::findOrFail($id);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Utilisateur trouvé',
+            'data' => $user,
+        ]);
     }
 
     /**
@@ -119,13 +134,29 @@ class UserController extends Controller
      *     @OA\Response(
      *         response=200,
      *         description="Utilisateur mis à jour"
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="Utilisateur non trouvé"
      *     )
      * )
      */
-    public function update(Request $request, User $user)
+    public function update(Request $request, $id)
     {
-        $user->update($request->only('name', 'email'));
-        return response()->json($user);
+        $user = User::findOrFail($id);
+
+        $validated = $request->validate([
+            'name' => 'sometimes|required|string|max:255',
+            'email' => 'sometimes|required|string|email|max:255|unique:users,email,' . $user->id,
+        ]);
+
+        $user->update($validated);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Utilisateur mis à jour',
+            'data' => $user,
+        ]);
     }
 
     /**
@@ -142,12 +173,21 @@ class UserController extends Controller
      *     @OA\Response(
      *         response=204,
      *         description="Utilisateur supprimé"
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="Utilisateur non trouvé"
      *     )
      * )
      */
-    public function destroy(User $user)
+    public function destroy($id)
     {
+        $user = User::findOrFail($id);
         $user->delete();
-        return response()->json(null, 204);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Utilisateur supprimé',
+        ]);
     }
 }
