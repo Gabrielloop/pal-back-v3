@@ -11,6 +11,7 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 use App\Http\Middleware\LogUserCrud;
 use App\Http\Middleware\ForceJsonResponse;
+use App\Http\Middleware\IsAdmin;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -26,6 +27,8 @@ return Application::configure(basePath: dirname(__DIR__))
         // Alias personnalisés
         $middleware->alias([
             'log.crud' => LogUserCrud::class,
+            'is_admin' => IsAdmin::class,
+
         ]);
 
         // Groupe API
