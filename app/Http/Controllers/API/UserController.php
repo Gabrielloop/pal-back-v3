@@ -60,6 +60,7 @@ class UserController extends Controller
      *     )
      * )
      */
+
     public function store(Request $request)
     {
         $validated = $request->validate([
@@ -72,6 +73,7 @@ class UserController extends Controller
             'name' => $validated['name'],
             'email' => $validated['email'],
             'password' => $validated['password'],
+            'role' => 'user',
         ]);
 
         return response()->json([
