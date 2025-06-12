@@ -8,7 +8,7 @@ use Illuminate\Http\Request;
 
 class BookController extends Controller
 {
-    // GET /api/books/all
+    // GET /api/books/all   ADMIN
     public function getAllBooks()
     {
         return response()->json([
@@ -18,7 +18,7 @@ class BookController extends Controller
         ], 200);
     }
 
-    // GET /api/books/isbn/{isbn}
+    // GET /api/books/isbn/{isbn}   USER
     public function getBookByIsbn($isbn)
     {
         $book = Book::findOrFail($isbn);
@@ -29,7 +29,7 @@ class BookController extends Controller
         ], 200);
     }
 
-    // GET /api/books/title/{title}
+    // GET /api/books/title/{title} USER
     public function getBooksByTitle($title)
     {
         $books = Book::where('book_title', 'like', '%' . $title . '%')->get();
@@ -40,7 +40,7 @@ class BookController extends Controller
         ], 200);
     }
 
-    // POST /api/books/add
+    // POST /api/books/add  USER
     public function saveBook(Request $request)
     {
         $validated = $request->validate([
@@ -60,7 +60,7 @@ class BookController extends Controller
         ], 201);
     }
 
-    // PUT /api/books/update/{isbn}
+    // PUT /api/books/update/{isbn} USER
     public function updateBook(Request $request, $isbn)
     {
         $book = Book::findOrFail($isbn);
@@ -81,7 +81,7 @@ class BookController extends Controller
         ],200);
     }
 
-    // DELETE /api/books/delete/{isbn}
+    // DELETE /api/books/delete/{isbn} USER
     public function deleteBook($isbn)
     {
         $book = Book::find($isbn);

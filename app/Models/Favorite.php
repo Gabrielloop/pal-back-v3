@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Models\Book;
 
 class Favorite extends Model
 {
@@ -11,7 +12,7 @@ class Favorite extends Model
     public $incrementing = false;
     protected $keyType = 'string';
 
-    
+
     public $timestamps = true;
 
     protected $fillable = ['user_id', 'isbn'];
@@ -25,4 +26,5 @@ class Favorite extends Model
     {
         return $this->belongsTo(User::class);
     }
+    
 }

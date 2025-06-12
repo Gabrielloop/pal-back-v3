@@ -8,14 +8,14 @@ use Illuminate\Http\Request;
 
 class CommentController extends Controller
 {
-    // GET /api/comments    ADMIN
+    // GET /api/comments/all    ADMIN
     public function index()
     {
         return response()->json([
             'success' => true,
             'message' => 'Liste des commentaires',
             'data' => Comment::all()
-        ]);
+        ], 200);
     }
 
     // GET /api/comments/{isbn}  USER
