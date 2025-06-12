@@ -6,6 +6,7 @@ use App\Http\Controllers\API\UserController;        // Gestion des utilisateurs
 use App\Http\Controllers\API\BookController;        // Gestion des livres
 use App\Http\Controllers\API\CommentController;     // Gestion des commentaires
 use App\Http\Controllers\API\FavoriteController;    // Gestion des favoris
+use App\Http\Controllers\API\WishlistController;    // Gestion des wishlists
 
 // Routes publiques
 Route::post('/user/login', [AuthController::class, 'login']);
@@ -38,6 +39,12 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/favorites/isbn/{isbn}', [FavoriteController::class, 'store']);
     Route::delete('/favorites/isbn/{isbn}', [FavoriteController::class, 'destroy']);
 
+    // gestion des wishlists (accessibles à tous les utilisateurs connectés)
+    Route::get('/wishlists', [WishlistController::class, 'getWishlists']);
+    Route::get('/wishlists/isbn/{isbn}', [WishlistController::class, 'getWishlistByIsbn']);
+    Route::post('/wishlists/isbn/{isbn}', [WishlistController::class, 'store']);
+    Route::delete('/wishlists/isbn/{isbn}', [WishlistController::class, 'destroy']);
+
     // Routes réservées aux admins
     Route::middleware(['auth:sanctum', 'is_admin'])->group(function () {
 
@@ -57,5 +64,7 @@ Route::middleware('auth:sanctum')->group(function () {
         // Gestion des favoris (accessibles uniquement aux admins)
         Route::get('/favorites/all', [FavoriteController::class, 'getBooksWithUsersWhoFavorited']);
 
+        // Gestion des wishlists (accessibles uniquement aux admins)
+        Route::get('/wishlists/all', [WishlistController::class, 'getBooksWithUsersWhoWished']);
     });
 });

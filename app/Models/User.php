@@ -54,7 +54,7 @@ class User extends Authenticatable
 
     public function wishlist()
     {
-        return $this->hasMany(Whishlist::class);
+        return $this->hasMany(Wishlist::class);
     }
 
     // Relations indirectes avec les livres
@@ -71,7 +71,7 @@ class User extends Authenticatable
 
     public function wishedBooks()
     {
-        return $this->belongsToMany(Book::class, 'whishlists', 'user_id', 'isbn', 'id', 'isbn');
+        return $this->belongsToMany(Book::class, 'wishlists', 'user_id', 'isbn', 'id', 'isbn');
     }
 
     public function listedBooks()
