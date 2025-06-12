@@ -19,6 +19,39 @@ class UserController extends Controller
         ]);
     }
 
+    public function me(Request $request)
+    {
+        return response()->json([
+            'success' => true,
+            'message' => 'Utilisateur connecté',
+            'data' => $request->user()
+        ]);
+    }
+
+    public function updateMe(Request $request)
+{
+    $user = $request->user();
+
+    $validated = $request->validate([
+        'name' => 'sometimes|string|max:255',
+        'email' => 'sometimes|email|unique:users,email,' . $user->id,
+        'password' => 'sometimes|string|min:8|confirmed',
+    ]);
+
+    if (isset($validated['password'])) {
+        $validated['password'] = bcrypt($validated['password']);
+    }
+
+    $user->update($validated);
+
+    return response()->json([
+        'success' => true,
+        'message' => 'Profil mis à jour',
+        'data' => $user,
+    ]);
+}
+
+
     public function store(Request $request)
     {
         $validated = $request->validate([
