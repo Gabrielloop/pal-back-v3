@@ -9,6 +9,7 @@ use App\Models\User;
 
 class AuthController extends Controller
 {
+    // POST /api/users/login
     public function login(Request $request)
     {
         $credentials = $request->validate([
@@ -32,6 +33,7 @@ class AuthController extends Controller
         ]);
     }
 
+    // POST /api/users/logout
     public function logout(Request $request)
     {
         $request->user()->currentAccessToken()->delete();

@@ -15,7 +15,7 @@ class BookController extends Controller
             'success' => true,
             'message' => 'Liste de tous les livres',
             'data' => Book::all()
-        ]);
+        ], 200);
     }
 
     // GET /api/books/isbn/{isbn}
@@ -26,7 +26,7 @@ class BookController extends Controller
             'success' => true,
             'message' => 'Recherche par isbn : ' . $isbn,
             'data' => $book
-        ]);
+        ], 200);
     }
 
     // GET /api/books/title/{title}
@@ -37,7 +37,7 @@ class BookController extends Controller
             'success' => true,
             'message' => 'Recherche par titre : ' . $title,
             'data' => $books
-        ]);
+        ], 200);
     }
 
     // POST /api/books/add
@@ -57,7 +57,7 @@ class BookController extends Controller
             'success' => true,
             'message' => 'Livre ajouté',
             'data' => $book
-        ]);
+        ], 201);
     }
 
     // PUT /api/books/update/{isbn}
@@ -78,7 +78,7 @@ class BookController extends Controller
             'success' => true,
             'message' => 'Livre modifié',
             'data' => $book
-        ]);
+        ],200);
     }
 
     // DELETE /api/books/delete/{isbn}
@@ -91,7 +91,7 @@ class BookController extends Controller
                 'success' => true,
                 'message' => 'Livre supprimé',
                 'data' => $book
-            ]);
+            ], 200);
         }
 
         return response()->json(['message' => 'Livre non trouvé'], 404);

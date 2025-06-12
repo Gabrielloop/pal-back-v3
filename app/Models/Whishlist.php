@@ -6,6 +6,12 @@ use Illuminate\Database\Eloquent\Model;
 
 class Whishlist extends Model
 {
+
+    protected $primaryKey = 'isbn';
+    public $incrementing = false;
+    protected $keyType = 'string';
+
+    
     public $timestamps = true;
 
     protected $fillable = ['user_id', 'isbn'];

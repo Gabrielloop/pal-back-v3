@@ -9,49 +9,51 @@ use Illuminate\Http\Request;
 
 class UserController extends Controller
 {
-
+    // GET /api/users/
     public function index()
     {
         return response()->json([
             'success' => true,
             'message' => 'Liste des utilisateurs',
             'data' => User::all()
-        ]);
+        ],200);
     }
 
+    // GET /api/users/me
     public function me(Request $request)
     {
         return response()->json([
             'success' => true,
             'message' => 'Utilisateur connecté',
             'data' => $request->user()
-        ]);
+        ],200);
     }
 
+    // PUT /api/users/me
     public function updateMe(Request $request)
-{
-    $user = $request->user();
+    {
+        $user = $request->user();
 
-    $validated = $request->validate([
-        'name' => 'sometimes|string|max:255',
-        'email' => 'sometimes|email|unique:users,email,' . $user->id,
-        'password' => 'sometimes|string|min:8|confirmed',
-    ]);
+        $validated = $request->validate([
+            'name' => 'sometimes|string|max:255',
+            'email' => 'sometimes|email|unique:users,email,' . $user->id,
+            'password' => 'sometimes|string|min:8|confirmed',
+        ]);
 
-    if (isset($validated['password'])) {
-        $validated['password'] = bcrypt($validated['password']);
+        if (isset($validated['password'])) {
+            $validated['password'] = bcrypt($validated['password']);
+        }
+
+        $user->update($validated);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Profil mis à jour',
+            'data' => $user,
+        ],200);
     }
 
-    $user->update($validated);
-
-    return response()->json([
-        'success' => true,
-        'message' => 'Profil mis à jour',
-        'data' => $user,
-    ]);
-}
-
-
+    // POST /api/users/add
     public function store(Request $request)
     {
         $validated = $request->validate([
@@ -74,6 +76,7 @@ class UserController extends Controller
         ], 201);
     }
 
+    // GET /api/users/{id}
     public function show($id)
     {
         $user = User::findOrFail($id);
@@ -82,10 +85,10 @@ class UserController extends Controller
             'success' => true,
             'message' => 'Utilisateur trouvé',
             'data' => $user,
-        ]);
+        ],200);
     }
 
-
+    // PUT /api/users/update/{id}
     public function update(Request $request, $id)
     {
         $user = User::findOrFail($id);
@@ -101,9 +104,10 @@ class UserController extends Controller
             'success' => true,
             'message' => 'Utilisateur mis à jour',
             'data' => $user,
-        ]);
+        ],200);
     }
 
+    // DELETE /api/users/delete/{id}
     public function destroy($id)
     {
         $user = User::findOrFail($id);
@@ -112,6 +116,6 @@ class UserController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Utilisateur supprimé',
-        ]);
+        ],200);
     }
 }

@@ -6,7 +6,15 @@ use Illuminate\Database\Eloquent\Model;
 
 class Comment extends Model
 {
-    protected $fillable = ['isbn', 'user_id', 'comment_content'];
+    protected $primaryKey = 'isbn';
+    public $incrementing = false;
+    protected $keyType = 'string';
+
+    protected $fillable = [
+        'isbn',
+        'user_id',
+        'comment_content',
+    ];
 
     public $timestamps = true;
 
