@@ -107,6 +107,6 @@ class Book extends Model
 
     public function userlists()
     {
-        return $this->belongsToMany(Userlist::class, 'userlist_book', 'isbn', 'userlist_id');
+        return $this->belongsToMany(Userlist::class, 'userlist_book', 'isbn', 'userlist_id', 'isbn', 'userlist_id');
     }
 }

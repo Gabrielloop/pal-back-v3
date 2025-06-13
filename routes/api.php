@@ -7,6 +7,8 @@ use App\Http\Controllers\API\BookController;        // Gestion des livres
 use App\Http\Controllers\API\CommentController;     // Gestion des commentaires
 use App\Http\Controllers\API\FavoriteController;    // Gestion des favoris
 use App\Http\Controllers\API\WishlistController;    // Gestion des wishlists
+use App\Http\Controllers\API\UserlistController;    // Gestion des userlists
+use App\Http\Controllers\API\UserlistBookController; // Gestion des livres dans les userlists
 
 // Routes publiques
 Route::post('/user/login', [AuthController::class, 'login']);
@@ -45,6 +47,19 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/wishlists/isbn/{isbn}', [WishlistController::class, 'store']);
     Route::delete('/wishlists/isbn/{isbn}', [WishlistController::class, 'destroy']);
 
+    // gestion des userlists (accessibles à tous les utilisateurs connectés)
+    Route::get('/userlists', [UserlistController::class, 'getUserLists']);
+    Route::get('/userlists/id/{id}', [UserlistController::class, 'show']);
+    Route::get('/userlists/title/{title}', [UserlistController::class, 'getByTitle']);
+    Route::post('/userlists', [UserlistController::class, 'store']);
+    Route::put('/userlists/id/{id}', [UserlistController::class, 'update']);
+    Route::delete('/userlists/id/{id}', [UserlistController::class, 'destroy']);
+
+    // Gestion des livres dans les userlists (accessibles à tous les utilisateurs connectés)
+    Route::get('/userlistBooks', [UserlistBookController::class, 'getBooksByListId']);
+    Route::post('/userlistBooks', [UserlistBookController::class, 'store']);
+    Route::delete('/userlistBooks/{listId}/{isbn}', [UserlistBookController::class, 'destroy']);
+
     // Routes réservées aux admins
     Route::middleware(['auth:sanctum', 'is_admin'])->group(function () {
 
@@ -66,5 +81,12 @@ Route::middleware('auth:sanctum')->group(function () {
 
         // Gestion des wishlists (accessibles uniquement aux admins)
         Route::get('/wishlists/all', [WishlistController::class, 'getBooksWithUsersWhoWished']);
+
+        // Gestion des userlists (accessibles uniquement aux admins)
+        Route::get('/userlists/all', [UserlistController::class, 'index']);
+
+        // Gestion des livres dans les userlists (accessibles uniquement aux admins)
+        Route::get('/userlistBooks/all', [UserlistBookController::class, 'index']);
+
     });
 });

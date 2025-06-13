@@ -53,7 +53,7 @@ class UserController extends Controller
         ],200);
     }
 
-    // POST /api/users/add
+    // POST /api/users
     public function store(Request $request)
     {
         $validated = $request->validate([
