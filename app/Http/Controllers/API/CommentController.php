@@ -18,7 +18,7 @@ class CommentController extends Controller
         ], 200);
     }
 
-    // GET /api/comments/{isbn}  USER
+    // GET /api/comments/isbn/{isbn}  USER
     public function getByIsbnForCurrentUser(Request $request, $isbn)
     {
         $userId = $request->user()->id;
@@ -53,7 +53,7 @@ class CommentController extends Controller
         ]);
     }
 
-    // POST /api/comments/{isbn}    USER
+    // POST /api/comments/   USER
     public function store(Request $request)
     {
         $validated = $request->validate([
@@ -74,7 +74,7 @@ class CommentController extends Controller
         ], 201);
     }
 
-    // PUT /api/comments/{isbn}     USER
+    // PUT /api/comments/isbn/{isbn}     USER
     public function update(Request $request, $isbn)
     {
         $userId = $request->user()->id;
@@ -96,7 +96,7 @@ class CommentController extends Controller
         ]);
     }
 
-    // DELETE /api/comments/{isbn}   USER
+    // DELETE /api/comments/isbn/{isbn}   USER
     public function destroy($isbn, Request $request)
     {
         $userId = $request->user()->id;

@@ -1,14 +1,16 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\API\AuthController;        // Authentification
-use App\Http\Controllers\API\UserController;        // Gestion des utilisateurs
-use App\Http\Controllers\API\BookController;        // Gestion des livres
-use App\Http\Controllers\API\CommentController;     // Gestion des commentaires
-use App\Http\Controllers\API\FavoriteController;    // Gestion des favoris
-use App\Http\Controllers\API\WishlistController;    // Gestion des wishlists
-use App\Http\Controllers\API\UserlistController;    // Gestion des userlists
-use App\Http\Controllers\API\UserlistBookController; // Gestion des livres dans les userlists
+use App\Http\Controllers\API\AuthController;            // Authentification
+use App\Http\Controllers\API\UserController;            // Gestion des utilisateurs
+use App\Http\Controllers\API\BookController;            // Gestion des livres
+use App\Http\Controllers\API\CommentController;         // Gestion des commentaires
+use App\Http\Controllers\API\FavoriteController;        // Gestion des favoris
+use App\Http\Controllers\API\WishlistController;        // Gestion des wishlists
+use App\Http\Controllers\API\UserlistController;        // Gestion des userlists
+use App\Http\Controllers\API\UserlistBookController;    // Gestion des livres dans les userlists
+use App\Http\Controllers\API\NoteController;            // Gestion des notes
+
 
 // Routes publiques
 Route::post('/user/login', [AuthController::class, 'login']);
@@ -26,14 +28,14 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/books/isbn/{isbn}', [BookController::class, 'getBookByIsbn']);
     Route::get('/books/title/{title}', [BookController::class, 'getBooksByTitle']);
     Route::post('/books', [BookController::class, 'saveBook']);
-    Route::put('/books/{isbn}', [BookController::class, 'updateBook']);
-    Route::delete('/books/{isbn}', [BookController::class, 'deleteBook']);
+    Route::put('/books/isbn/{isbn}', [BookController::class, 'updateBook']);
+    Route::delete('/books/isbn/{isbn}', [BookController::class, 'deleteBook']);
 
     // Gestion des commentaires (accessibles à tous les utilisateurs connectés)
-    Route::get('/comments/{isbn}', [CommentController::class, 'getByIsbnForCurrentUser']);
-    Route::post('/comments/{isbn}', [CommentController::class, 'store']);
-    Route::put('/comments/{isbn}', [CommentController::class, 'update']);
-    Route::delete('/comments/{isbn}', [CommentController::class, 'destroy']);
+    Route::get('/comments/isbn/{isbn}', [CommentController::class, 'getByIsbnForCurrentUser']);
+    Route::post('/comments', [CommentController::class, 'store']);
+    Route::put('/comments/isbn/{isbn}', [CommentController::class, 'update']);
+    Route::delete('/comments/isbn/{isbn}', [CommentController::class, 'destroy']);
 
     // Gestion des favoris (accessibles à tous les utilisateurs connectés)
     Route::get('/favorites', [FavoriteController::class, 'getFavorites']);
