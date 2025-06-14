@@ -21,6 +21,15 @@ class NoteController extends Controller
     // GET /api/notes/note/{note}   (USER)
     public function getBooksByUserAndNote(Request $request, $note)
     {
+
+         // Validation manuelle du paramètre $note
+        if (!is_numeric($note) || (int)$note < 0 || (int)$note > 5) {
+            return response()->json([
+                'success' => false,
+                'message' => 'La note doit être un entier entre 0 et 5.',
+            ], 422);
+        }
+
         $userId = $request->user()->id;
 
         // Récupérer les notes avec le livre associé
@@ -43,7 +52,7 @@ class NoteController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => "Livres notés {$note} par l’utilisateur",
+            'message' => "Livres notés {$note}* par l’utilisateur",
             'data' => $data,
         ],200);
     }
@@ -57,12 +66,12 @@ class NoteController extends Controller
 
         $userId = $request->user()->id;
 
-        $note = Note::where('user_id', $userId)
-                    ->where('isbn', $isbn)
-                    ->first();
+        $note = Note::where('user_id', $request->user()->id)
+            ->where('isbn', $isbn)
+            ->first();
 
         // Si note_content est "0", on supprime la note si elle existe
-        if ($validated['note_content'] === "0") {
+        if ($validated['note_content'] === "0")  {
             if ($note) {
                 $note->delete();
 

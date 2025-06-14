@@ -62,6 +62,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/userlistBooks', [UserlistBookController::class, 'store']);
     Route::delete('/userlistBooks/{listId}/{isbn}', [UserlistBookController::class, 'destroy']);
 
+    // Gestion des notes (accessibles à tous les utilisateurs connectés)
+    Route::get('/notes/note/{note}', [NoteController::class, 'getBooksByUserAndNote']);
+    Route::post('/notes/isbn/{isbn}', [NoteController::class, 'storeOrUpdateOrDelete']);
+
     // Routes réservées aux admins
     Route::middleware(['auth:sanctum', 'is_admin'])->group(function () {
 
@@ -89,6 +93,9 @@ Route::middleware('auth:sanctum')->group(function () {
 
         // Gestion des livres dans les userlists (accessibles uniquement aux admins)
         Route::get('/userlistBooks/all', [UserlistBookController::class, 'index']);
+
+        // Gestion des notes (accessibles uniquement aux admins)
+        Route::get('/notes/all', [NoteController::class, 'index']);
 
     });
 });
