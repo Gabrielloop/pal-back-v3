@@ -5,6 +5,7 @@ namespace App\Http\Controllers\API;
 use App\Http\Controllers\Controller;
 use App\Models\Book;
 use App\Models\Userlist;
+use App\Models\Reading;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -40,7 +41,7 @@ class UserlistBookController extends Controller
     }
 
     // POST /api/userlistBooks   (USER)
-    public function store(Request $request)
+   public function store(Request $request)
     {
         $validated = $request->validate([
             'userlist_id' => 'required|exists:userlists,userlist_id',
@@ -48,7 +49,7 @@ class UserlistBookController extends Controller
         ]);
 
         $userId = $request->user()->id;
-        
+
         $userlist = Userlist::where('userlist_id', $validated['userlist_id'])
             ->where('user_id', $userId)
             ->first();
@@ -68,11 +69,37 @@ class UserlistBookController extends Controller
             ], 409);
         }
 
-            // Ajoute le livre via la relation
+        // Ajoute le livre à la liste
         $userlist->books()->attach($validated['isbn'], [
             'created_at' => now(),
             'updated_at' => now(),
         ]);
+
+        // Création automatique dans readings si nécessaire
+        $alreadyReading = Reading::where('user_id', $userId)
+            ->where('isbn', $validated['isbn'])
+            ->exists();
+
+       if (!$alreadyReading) {
+            try {
+                Reading::create([
+                    'user_id' => $userId,
+                    'isbn' => $validated['isbn'],
+                    'reading_content' => 0,
+                    'is_started' => false,
+                    'is_reading' => false,
+                    'is_finished' => false,
+                    'is_abandoned' => false,
+                ]);
+                \Log::info('Lecture insérée avec succès', ['user_id' => $userId, 'isbn' => $validated['isbn']]);
+            } catch (\Throwable $e) {
+                \Log::error('Échec insertion lecture', [
+                    'user_id' => $userId,
+                    'isbn' => $validated['isbn'],
+                    'erreur' => $e->getMessage(),
+                ]);
+            }
+        }
 
         return response()->json([
             'success' => true,
@@ -83,6 +110,7 @@ class UserlistBookController extends Controller
             ]
         ], 201);
     }
+
 
     // DELETE /api/userlistBooks/{listId}/{isbn}   (USER)
     public function destroy(Request $request, $listId, $isbn)
