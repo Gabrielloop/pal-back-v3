@@ -10,7 +10,7 @@ use App\Http\Controllers\API\WishlistController;        // Gestion des wishlists
 use App\Http\Controllers\API\UserlistController;        // Gestion des userlists
 use App\Http\Controllers\API\UserlistBookController;    // Gestion des livres dans les userlists
 use App\Http\Controllers\API\NoteController;            // Gestion des notes
-
+use App\Http\Controllers\API\ReadingController;         // Gestion des lectures
 
 // Routes publiques
 Route::post('/user/login', [AuthController::class, 'login']);

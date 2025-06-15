@@ -21,53 +21,56 @@ class ReadingController extends Controller
 
     // GET /api/reading/notStarted   (USER)
     public function getNotStarted(Request $request)
-    {
-        $books = Book::where('user_id', $request->user()->id)
-            ->where('reading_percent', 0)
-            ->get();
+{
+    $readings = Reading::with('book')
+        ->where('user_id', $request->user()->id)
+        ->where('reading_content', 0)
+        ->get();
 
-        return $this->formatResponse($books, 'Livres non commencés');
-    }
+    return $this->formatResponse($readings, 'Livres non commencés');
+}
 
-    // GET /api/reading/reading   (USER)
-    public function getReading(Request $request)
-    {
-        $books = Book::where('user_id', $request->user()->id)
-            ->whereBetween('reading_percent', [1, 99])
-            ->get();
+public function getReading(Request $request)
+{
+    $readings = Reading::with('book')
+        ->where('user_id', $request->user()->id)
+        ->whereBetween('reading_content', [1, 99])
+        ->get();
 
-        return $this->formatResponse($books, 'Livres en cours de lecture');
-    }
+    return $this->formatResponse($readings, 'Livres en cours de lecture');
+}
 
-    // GET /api/reading/finished   (USER)
-    public function getFinished(Request $request)
-    {
-        $books = Book::where('user_id', $request->user()->id)
-            ->where('reading_percent', 100)
-            ->get();
+public function getFinished(Request $request)
+{
+    $readings = Reading::with('book')
+        ->where('user_id', $request->user()->id)
+        ->where('reading_content', 100)
+        ->get();
 
-        return $this->formatResponse($books, 'Livres terminés');
-    }
+    return $this->formatResponse($readings, 'Livres terminés');
+}
 
-    private function formatResponse($books, $message)
-    {
-        $data = $books->map(function ($book) {
-            return [
-                'isbn' => $book->isbn,
-                'book_title' => $book->book_title,
-                'book_author' => $book->book_author,
-                'book_publisher' => $book->book_publisher,
-                'book_year' => $book->book_year,
-                'reading_percent' => $book->reading_percent,
-            ];
-        });
+private function formatResponse($readings, $message)
+{
+    $data = $readings->map(function ($reading) {
+        $book = $reading->book;
 
-        return response()->json([
-            'success' => true,
-            'message' => $message,
-            'data' => $data,
-        ]);
-    }
+        return [
+            'isbn' => $reading->isbn,
+            'book_title' => $book->book_title,
+            'book_author' => $book->book_author,
+            'book_publisher' => $book->book_publisher,
+            'book_year' => $book->book_year,
+            'reading_content' => $reading->reading_content,
+        ];
+    });
+
+    return response()->json([
+        'success' => true,
+        'message' => $message,
+        'data' => $data,
+    ]);
+}
 
     // POST /api/reading/isbn/{isbn}  (USER)
     public function storeOrUpdateOrDelete(Request $request, $isbn)
