@@ -13,7 +13,7 @@ return new class extends Migration {
             $table->string('isbn');
             $table->foreign('isbn')->references('isbn')->on('books')->onDelete('cascade');
 
-            $table->text('reading_content');
+            $table->unsignedTinyInteger('reading_content')->index();
             $table->timestamps();
 
             $table->primary(['user_id', 'isbn']);

@@ -71,7 +71,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/reading/notStarted', [ReadingController::class, 'getNotStarted']);
     Route::get('/reading/reading', [ReadingController::class, 'getReading']);
     Route::get('/reading/finished', [ReadingController::class, 'getFinished']);
-    Route::post('/reading/isbn/{isbn}', [ReadingController::class, 'storeOrUpdateOrDelete']);
+    Route::get('/reading/abandoned', [ReadingController::class, 'getAbandoned']);
+    Route::post('/reading/add/{isbn}', [ReadingController::class, 'add']);
+    Route::post('/reading/set/{isbn}', [ReadingController::class, 'setProgress']);
+    Route::post('/reading/abandon/{isbn}', [ReadingController::class, 'abandon']);
 
     // Routes réservées aux admins
     Route::middleware(['auth:sanctum', 'is_admin'])->group(function () {
@@ -103,6 +106,9 @@ Route::middleware('auth:sanctum')->group(function () {
 
         // Gestion des notes (accessibles uniquement aux admins)
         Route::get('/notes/all', [NoteController::class, 'index']);
+
+        // Gestion des lectures (accessibles uniquement aux admins)
+        Route::get('/reading/all', [ReadingController::class, 'index']);
 
     });
 });
