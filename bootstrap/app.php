@@ -12,6 +12,9 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use App\Http\Middleware\LogUserCrud;
 use App\Http\Middleware\ForceJsonResponse;
 use App\Http\Middleware\IsAdmin;
+use App\Http\Middleware\ConvertSnakeToCamel;
+use App\Http\Middleware\ConvertCamelToSnake;
+
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -34,6 +37,8 @@ return Application::configure(basePath: dirname(__DIR__))
         // Groupe API
         $middleware->group('api', [
             ForceJsonResponse::class,
+            ConvertSnakeToCamel::class,
+            ConvertCamelToSnake::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
