@@ -66,6 +66,13 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/notes/note/{note}', [NoteController::class, 'getBooksByUserAndNote']);
     Route::post('/notes/isbn/{isbn}', [NoteController::class, 'storeOrUpdateOrDelete']);
 
+    // Gestion des lectures (accessibles à tous les utilisateurs connectés)
+    Route::get('/reading/all', [ReadingController::class, 'index']);
+    Route::get('/reading/notStarted', [ReadingController::class, 'getNotStarted']);
+    Route::get('/reading/reading', [ReadingController::class, 'getReading']);
+    Route::get('/reading/finished', [ReadingController::class, 'getFinished']);
+    Route::post('/reading/isbn/{isbn}', [ReadingController::class, 'storeOrUpdateOrDelete']);
+
     // Routes réservées aux admins
     Route::middleware(['auth:sanctum', 'is_admin'])->group(function () {
 
