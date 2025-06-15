@@ -9,6 +9,7 @@ use App\Models\User;
 
 class AuthController extends Controller
 {
+    // POST /api/users/login
     public function login(Request $request)
     {
         $credentials = $request->validate([
@@ -16,22 +17,30 @@ class AuthController extends Controller
             'password' => 'required',
         ]);
 
-        if (!Auth::attempt($credentials)) {
-            return response()->json(['message' => 'Identifiants invalides'], 401);
+        // Mail non trouvé
+        if (!User::where('email', $request->email)->exists()) {
+            return response()->json(['message' => 'Utilisateur non trouvé'], 404);
         }
+
 
         $user = User::where('email', $request->email)->firstOrFail();
         $token = $user->createToken('auth_token')->plainTextToken;
 
         return response()->json([
+            'success' => true,
+            'message' => 'Connecté avec succès',
+            'user' => $user,
             'access_token' => $token,
             'token_type' => 'Bearer',
         ]);
     }
 
+    // POST /api/users/logout
     public function logout(Request $request)
     {
         $request->user()->currentAccessToken()->delete();
-        return response()->json(['message' => 'Déconnecté']);
+        return response()->json([
+            'success' => true,
+            'message' => 'Déconnecté']);
     }
 }
