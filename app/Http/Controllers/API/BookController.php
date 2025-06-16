@@ -81,7 +81,7 @@ class BookController extends Controller
         ],200);
     }
 
-    // DELETE /api/books/delete/{isbn} USER
+    // DELETE /api/books/delete/{isbn} ADMIN
     public function deleteBook($isbn)
     {
         $book = Book::find($isbn);

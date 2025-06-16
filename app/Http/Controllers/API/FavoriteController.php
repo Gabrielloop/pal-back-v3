@@ -34,6 +34,28 @@ class FavoriteController extends Controller
         ], 200);
     }
 
+    // DELETE /api/favorites/id/{id}   ADMIN
+    public function destroyById($id)
+    {
+        $favorite = Favorite::find($id);
+
+        if (!$favorite) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Favori non trouvé',
+            ], 404);
+        }
+
+        $favorite->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Favori supprimé',
+            'data' => $favorite,
+        ], 200);
+    }
+
+
     // GET /api/favorites   USER
     public function getFavorites(Request $request)
     {

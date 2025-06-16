@@ -34,6 +34,45 @@ class WishlistController extends Controller
         ], 200);
     }
 
+    // DELETE /api/wishlists/id/{id}   ADMIN
+    public function destroyById($id)
+    {
+        $wishlist = Wishlist::find($id);
+
+        if (!$wishlist) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Wishlist non trouvée',
+            ], 404);
+        }
+
+        $wishlist->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Wishlist supprimée',
+            'data' => $wishlist,
+        ], 200);
+    }
+
+    // PUT /api/wishlists/id/{id}   ADMIN
+    public function updateById(Request $request, $id)
+    {
+        $wishlist = Wishlist::findOrFail($id);
+
+        $validated = $request->validate([
+            'isbn' => 'required|string|exists:books,isbn',
+        ]);
+
+        $wishlist->update($validated);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Wishlist mise à jour',
+            'data' => $wishlist,
+        ], 200);
+    }
+
     // GET /api/wishlists   USER
     public function getWishlists(Request $request)
     {

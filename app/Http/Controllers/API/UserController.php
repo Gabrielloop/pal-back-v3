@@ -88,7 +88,7 @@ class UserController extends Controller
         ],200);
     }
 
-    // PUT /api/users/update/{id}
+    // PUT /api/users/update/{id}   ADMIN
     public function update(Request $request, $id)
     {
         $user = User::findOrFail($id);
@@ -107,7 +107,7 @@ class UserController extends Controller
         ],200);
     }
 
-    // DELETE /api/users/delete/{id}
+    // DELETE /api/users/delete/{id}    ADMIN
     public function destroy($id)
     {
         $user = User::findOrFail($id);
