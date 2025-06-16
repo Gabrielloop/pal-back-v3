@@ -34,22 +34,32 @@ class UserController extends Controller
     {
         $user = $request->user();
 
+
+
         $validated = $request->validate([
             'name' => 'sometimes|string|max:255',
             'email' => 'sometimes|email|unique:users,email,' . $user->id,
             'password' => 'sometimes|string|min:8|confirmed',
+            'is_dark_mode' => 'sometimes|boolean',
         ]);
 
         if (isset($validated['password'])) {
             $validated['password'] = bcrypt($validated['password']);
         }
+        \Log::info('--- updateMe debug ---');
+        \Log::info('Raw input', $request->all());
+        \Log::info('Validated data', $validated);
+        \Log::info('is_dark_mode in validated', [
+            'has' => array_key_exists('is_dark_mode', $validated),
+            'value' => $validated['is_dark_mode'] ?? null,
+        ]);
 
         $user->update($validated);
 
         return response()->json([
             'success' => true,
             'message' => 'Profil mis à jour',
-            'data' => $user,
+            'data' => $user->fresh(),
         ],200);
     }
 
@@ -96,6 +106,7 @@ class UserController extends Controller
         $validated = $request->validate([
             'name' => 'sometimes|required|string|max:255',
             'email' => 'sometimes|required|string|email|max:255|unique:users,email,' . $user->id,
+            'is_dark_mode' => 'sometimes|boolean',
         ]);
 
         $user->update($validated);
