@@ -92,34 +92,34 @@ Route::middleware('auth:sanctum')->group(function () {
         // Gestion des commentaires (accessibles uniquement aux admins)
         Route::get('/comments/all', [CommentController::class, 'index']);
         Route::get('/comments/content/{content}', [CommentController::class, 'getByContent']);
-        Route::put('/comments/{id}', [CommentController::class, 'update']);
-        Route::delete('/comments/{id}', [CommentController::class, 'destroy']);
+        Route::put('/comments/userid/{userid}/{isbn}/', [CommentController::class, 'updateByUserIdAndIsbn']);
+        Route::delete('/comments/userid/{userid}/{isbn}/', [CommentController::class, 'destroyByUserIdAndIsbn']);
 
         // Gestion des favoris (accessibles uniquement aux admins)
         Route::get('/favorites/all', [FavoriteController::class, 'getBooksWithUsersWhoFavorited']);
-        Route::delete('/favorites/id/{id}', [FavoriteController::class, 'destroy']);
+        Route::delete('/favorites/userid/{userid}/{isbn}', [FavoriteController::class, 'destroyByUserIdAndIsbn']);
 
         // Gestion des wishlists (accessibles uniquement aux admins)
         Route::get('/wishlists/all', [WishlistController::class, 'getBooksWithUsersWhoWished']);
-        Route::delete('/wishlists/id/{id}', [WishlistController::class, 'destroy']);
-        Route::put('/wishlists/id/{id}', [WishlistController::class, 'updateById']);
+        Route::delete('/wishlists/userid/{userid}/{isbn}', [WishlistController::class, 'destroyByUserIdAndIsbn']);
 
         // Gestion des userlists (accessibles uniquement aux admins)
         Route::get('/userlists/all', [UserlistController::class, 'index']);
-        Route::put('/userlists/id/{id}', [UserlistController::class, 'updateById']);
-        Route::delete('/userlists/id/{id}', [UserlistController::class, 'destroyById']);
-
+        Route::put('/userlists/userid/{userid}/{userlistid}', [UserlistController::class, 'updateUserlistByUserId']);
+        Route::delete('/userlists/userid/{userid}/{userlistid}', [UserlistController::class, 'deleteUserlistByUserId']);
+        
         // Gestion des livres dans les userlists (accessibles uniquement aux admins)
         Route::get('/userlistBooks/all', [UserlistBookController::class, 'index']);
-        Route::delete('/userlistBooks/id/{id}', [UserlistBookController::class, 'destroyById']);
-        Route::put('/userlistBooks/id/{id}', [UserlistBookController::class, 'updateById']);
+        Route::delete('/userlistBooks/userlistid/{userlistid}/{isbn}', [UserlistBookController::class, 'deleteByUserlistId']);
 
         // Gestion des notes (accessibles uniquement aux admins)
         Route::get('/notes/all', [NoteController::class, 'index']);
-        Route::delete('/notes/id/{id}', [NoteController::class, 'destroy']);
+        Route::delete('/notes/userid/{id}/{isbn}', [NoteController::class, 'deleteByUserIdAndIsbn']);
 
         // Gestion des lectures (accessibles uniquement aux admins)
-        Route::get('/reading/all', [ReadingController::class, 'index']);
+        Route::get('/readings/all', [ReadingController::class, 'index']);
+        Route::put('/readings/userid/{userid}/{isbn}', [ReadingController::class, 'updateByUserIdAndIsbn']);
+        Route::delete('/readings/userid/{userid}/{isbn}', [ReadingController::class, 'destroyByUserIdAndIsbn']);
 
     });
 });

@@ -18,42 +18,49 @@ class ReadingController extends Controller
         ]);
     }
 
-    // DELETE /api/reading/id/{id}   (ADMIN)
-    public function destroyById($id)
+    // DELETE /api/reading/userid/{userid}/{isbn}   (ADMIN)
+    public function destroyByUserIdAndIsbn($userid, $isbn)
     {
-        $reading = Reading::find($id);
+        $reading = Reading::where('user_id', $userid)
+            ->where('isbn', $isbn)
+            ->first();
 
         if (!$reading) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Lecture non trouvée',
-            ], 404);
+            return response()->json(['success' => false, 'message' => 'Lecture non trouvée'], 404);
         }
 
-        $reading->delete();
+        $reading->where('user_id', $userid)
+            ->where('isbn', $isbn)
+            ->delete();
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Lecture supprimée',
-            'data' => $reading,
-        ], 200);
+        return response()->json(['success' => true, 'message' => 'Lecture supprimée']);
     }
-    // PUT /api/reading/id/{id}   (ADMIN)
-    public function updateById(Request $request, $id)
+
+    // PUT /api/reading/userid/{userid}/{isbn}   (ADMIN)
+    public function updateByUserIdAndIsbn(Request $request, $userid, $isbn)
     {
-        $reading = Reading::findOrFail($id);
+        $reading = Reading::where('user_id', $userid)
+            ->where('isbn', $isbn)
+            ->firstOrFail();
 
         $validated = $request->validate([
-            'reading_content' => 'required|string',
+            'reading_content' => 'required|integer|min:0|max:100',
+            'is_started' => 'required|boolean',
+            'is_reading' => 'required|boolean',
+            'is_finished' => 'required|boolean',
+            'is_abandoned' => 'required|boolean',
         ]);
 
-        $reading->update($validated);
+        // TODO : maj de la réponse pour envoyer l'objet modifié
+        $reading->where('user_id', $userid)
+            ->where('isbn', $isbn)
+            ->update($validated);
 
         return response()->json([
             'success' => true,
             'message' => 'Lecture mise à jour',
             'data' => $reading,
-        ], 200);
+        ]);
     }
 
     // GET /api/reading/notStarted   (USER)

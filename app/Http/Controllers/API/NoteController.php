@@ -18,15 +18,15 @@ class NoteController extends Controller
         ], 200);
     }
 
-    // DELETE /api/notes/id/{id}   (ADMIN)
-    public function destroyById($id)
+    // DELETE /api/notes/userid/{id}/{isbn}   (ADMIN)
+    public function deleteByUserIdAndIsbn($id, $isbn)
     {
-        $note = Note::find($id);
+        $note = Note::where('user_id', $id)->where('isbn', $isbn)->first();
 
         if (!$note) {
             return response()->json([
                 'success' => false,
-                'message' => 'Note non trouvée',
+                'message' => 'Note non trouvée pour cet utilisateur et cet ISBN.',
             ], 404);
         }
 
@@ -34,25 +34,7 @@ class NoteController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'Note supprimée',
-            'data' => $note,
-        ], 200);
-    }
-    // PUT /api/notes/id/{id}   (ADMIN)
-    public function updateById(Request $request, $id)
-    {
-        $note = Note::findOrFail($id);
-
-        $validated = $request->validate([
-            'note_content' => 'required|string',
-        ]);
-
-        $note->update($validated);
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Note mise à jour',
-            'data' => $note,
+            'message' => 'Note supprimée avec succès.',
         ], 200);
     }
 

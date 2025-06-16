@@ -34,10 +34,12 @@ class FavoriteController extends Controller
         ], 200);
     }
 
-    // DELETE /api/favorites/id/{id}   ADMIN
-    public function destroyById($id)
+    // DELETE /api/favorites/userid/{userid}/{isbn}   ADMIN
+    public function destroyByUserIdAndIsbn($userid, $isbn)
     {
-        $favorite = Favorite::find($id);
+        $favorite = Favorite::where('user_id', $userid)
+            ->where('isbn', $isbn)
+            ->first();
 
         if (!$favorite) {
             return response()->json([
@@ -54,7 +56,6 @@ class FavoriteController extends Controller
             'data' => $favorite,
         ], 200);
     }
-
 
     // GET /api/favorites   USER
     public function getFavorites(Request $request)
