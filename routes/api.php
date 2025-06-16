@@ -84,25 +84,36 @@ Route::middleware('auth:sanctum')->group(function () {
 
         // Gestion des livres (accessibles uniquement aux admins)
         Route::get('/books/all', [BookController::class, 'getAllBooks']);
+        Route::delete('/books/isbn/{isbn}', [BookController::class, 'deleteBook']);
 
         // Gestion des commentaires (accessibles uniquement aux admins)
         Route::get('/comments/all', [CommentController::class, 'index']);
         Route::get('/comments/content/{content}', [CommentController::class, 'getByContent']);
+        Route::put('/comments/{id}', [CommentController::class, 'update']);
+        Route::delete('/comments/{id}', [CommentController::class, 'destroy']);
 
         // Gestion des favoris (accessibles uniquement aux admins)
         Route::get('/favorites/all', [FavoriteController::class, 'getBooksWithUsersWhoFavorited']);
+        Route::delete('/favorites/id/{id}', [FavoriteController::class, 'destroy']);
 
         // Gestion des wishlists (accessibles uniquement aux admins)
         Route::get('/wishlists/all', [WishlistController::class, 'getBooksWithUsersWhoWished']);
+        Route::delete('/wishlists/id/{id}', [WishlistController::class, 'destroy']);
+        Route::put('/wishlists/id/{id}', [WishlistController::class, 'updateById']);
 
         // Gestion des userlists (accessibles uniquement aux admins)
         Route::get('/userlists/all', [UserlistController::class, 'index']);
+        Route::put('/userlists/id/{id}', [UserlistController::class, 'updateById']);
+        Route::delete('/userlists/id/{id}', [UserlistController::class, 'destroyById']);
 
         // Gestion des livres dans les userlists (accessibles uniquement aux admins)
         Route::get('/userlistBooks/all', [UserlistBookController::class, 'index']);
+        Route::delete('/userlistBooks/id/{id}', [UserlistBookController::class, 'destroyById']);
+        Route::put('/userlistBooks/id/{id}', [UserlistBookController::class, 'updateById']);
 
         // Gestion des notes (accessibles uniquement aux admins)
         Route::get('/notes/all', [NoteController::class, 'index']);
+        Route::delete('/notes/id/{id}', [NoteController::class, 'destroy']);
 
     });
 });
