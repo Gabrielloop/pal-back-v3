@@ -18,6 +18,46 @@ class ReadingController extends Controller
         ]);
     }
 
+    // DELETE /api/reading/id/{id}   (ADMIN)
+    public function destroyById($id)
+    {
+        $reading = Reading::find($id);
+
+        if (!$reading) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Lecture non trouvée',
+            ], 404);
+        }
+
+        $reading->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Lecture supprimée',
+            'data' => $reading,
+        ], 200);
+    }
+    // PUT /api/reading/id/{id}   (ADMIN)
+    public function updateById(Request $request, $id)
+    {
+        $reading = Reading::findOrFail($id);
+
+        $validated = $request->validate([
+            'reading_content' => 'required|string',
+        ]);
+
+        $reading->update($validated);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Lecture mise à jour',
+            'data' => $reading,
+        ], 200);
+    }
+
+    // GET /api/reading/notStarted   (USER)
+
     public function getNotStarted(Request $request)
     {
         $readings = Reading::with('book')

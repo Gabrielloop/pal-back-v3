@@ -18,6 +18,47 @@ class UserlistController extends Controller
         ], 200);
     }
 
+    // DELETE /api/userlists/id/{id}   (ADMIN)
+    public function destroyById($id)
+    {
+        $userlist = Userlist::find($id);
+
+        if (!$userlist) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Liste non trouvée',
+            ], 404);
+        }
+
+        $userlist->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Liste supprimée',
+            'data' => $userlist,
+        ], 200);
+    }
+
+    // PUT /api/userlists/id/{id}   (ADMIN)
+    public function updateById(Request $request, $id)
+    {
+        $userlist = Userlist::findOrFail($id);
+
+        $validated = $request->validate([
+            'userlist_name' => 'required|string|max:255',
+            'userlist_description' => 'nullable|string',
+            'userlist_type' => 'required|string',
+        ]);
+
+        $userlist->update($validated);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Liste mise à jour',
+            'data' => $userlist,
+        ]);
+    }
+
     // GET /api/userlists   (USER)
     public function getUserLists(Request $request)
     {

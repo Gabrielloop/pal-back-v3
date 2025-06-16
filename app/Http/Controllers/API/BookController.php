@@ -60,7 +60,7 @@ class BookController extends Controller
         ], 201);
     }
 
-    // PUT /api/books/update/{isbn} USER
+    // PUT /api/books/isbn/{isbn} USER
     public function updateBook(Request $request, $isbn)
     {
         $book = Book::findOrFail($isbn);
@@ -81,7 +81,7 @@ class BookController extends Controller
         ],200);
     }
 
-    // DELETE /api/books/delete/{isbn} USER
+    // DELETE /api/books/isbn/{isbn} ADMIN
     public function deleteBook($isbn)
     {
         $book = Book::find($isbn);

@@ -18,6 +18,44 @@ class CommentController extends Controller
         ], 200);
     }
 
+    // DELETE /api/comments/id/{id}   ADMIN
+    public function destroyById($id)
+    {
+        $comment = Comment::find($id);
+
+        if (!$comment) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Commentaire non trouvé',
+            ], 404);
+        }
+
+        $comment->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Commentaire supprimé',
+            'data' => $comment,
+        ], 200);
+    }
+    // PUT /api/comments/id/{id}   ADMIN
+    public function updateById(Request $request, $id)
+    {
+        $comment = Comment::findOrFail($id);
+
+        $validated = $request->validate([
+            'comment_content' => 'required|string',
+        ]);
+
+        $comment->update($validated);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Commentaire mis à jour',
+            'data' => $comment,
+        ]);
+    }
+
     // GET /api/comments/isbn/{isbn}  USER
     public function getByIsbnForCurrentUser(Request $request, $isbn)
     {

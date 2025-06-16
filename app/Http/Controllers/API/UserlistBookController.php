@@ -40,6 +40,57 @@ class UserlistBookController extends Controller
         ], 200);
     }
 
+    // DELETE /api/userlistBooks/id/{id}   (ADMIN)
+    public function destroyById($id)
+    {
+        $deleted = DB::table('userlist_book')->where('id', $id)->delete();
+
+        if (!$deleted) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Entrée non trouvée',
+            ], 404);
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Entrée supprimée',
+        ], 200);
+    }
+    // PUT /api/userlistBooks/id/{id}   (ADMIN)
+    public function updateById(Request $request, $id)
+    {
+        $validated = $request->validate([
+            'userlist_id' => 'required|exists:userlists,userlist_id',
+            'isbn' => 'required|exists:books,isbn',
+        ]);
+
+        $updated = DB::table('userlist_book')
+            ->where('id', $id)
+            ->update([
+                'userlist_id' => $validated['userlist_id'],
+                'isbn' => $validated['isbn'],
+                'updated_at' => now(),
+            ]);
+
+        if (!$updated) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Entrée non trouvée ou non mise à jour',
+            ], 404);
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Entrée mise à jour',
+            'data' => [
+                'id' => $id,
+                'userlist_id' => $validated['userlist_id'],
+                'isbn' => $validated['isbn'],
+            ]
+        ], 200);
+    }
+
     // POST /api/userlistBooks   (USER)
    public function store(Request $request)
     {
