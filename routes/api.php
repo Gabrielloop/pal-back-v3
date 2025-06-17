@@ -11,6 +11,7 @@ use App\Http\Controllers\API\UserlistController;        // Gestion des userlists
 use App\Http\Controllers\API\UserlistBookController;    // Gestion des livres dans les userlists
 use App\Http\Controllers\API\NoteController;            // Gestion des notes
 use App\Http\Controllers\API\ReadingController;         // Gestion des lectures
+use App\Http\Controllers\API\BnfProxyController;
 
 // Routes publiques
 Route::post('/user/login', [AuthController::class, 'login']);
@@ -18,6 +19,8 @@ Route::post('/user/users', [UserController::class, 'store']);
 
 // Routes pour utilisateurs authentifiés
 Route::middleware('auth:sanctum')->group(function () {
+
+    Route::get('/bnf', [BnfProxyController::class, 'proxy']);
 
     // Gestion des utilisateurs (accessibles à tous les utilisateurs connectés)
     Route::get('/users/me', [UserController::class, 'me']);
