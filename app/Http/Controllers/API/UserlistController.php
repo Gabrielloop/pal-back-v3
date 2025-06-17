@@ -18,10 +18,10 @@ class UserlistController extends Controller
         ], 200);
     }
 
-    // DELETE /api/userlists/userid/{userid}/{userlistid}   (ADMIN)
-    public function deleteUserlistByUserId($userId, $userlistId)
+    // DELETE /api/userlists/userlistid/{userlistid}   (ADMIN)
+    public function deleteUserlistByUserId($userlistId)
     {
-        $userlist = Userlist::where('user_id', $userId)->find($userlistId);
+        $userlist = Userlist::find($userlistId);
 
         if (!$userlist) {
             return response()->json([
@@ -39,10 +39,10 @@ class UserlistController extends Controller
         ]);
     }
     
-    // PUT /api/userlists/userid/{userid}/{userlistid}   (ADMIN)
-    public function updateUserlistByUserId(Request $request, $userId, $userlistId)
+    // PUT /api/userlists/userlistid/{userlistid}   (ADMIN)
+    public function updateUserlistByUserId(Request $request, $userlistId)
     {
-        $userlist = Userlist::where('user_id', $userId)->find($userlistId);
+        $userlist = Userlist::find($userlistId);
 
         if (!$userlist) {
             return response()->json([

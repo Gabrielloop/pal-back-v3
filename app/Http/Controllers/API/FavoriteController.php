@@ -34,6 +34,19 @@ class FavoriteController extends Controller
         ], 200);
     }
 
+    // GET /api/favorites/collection   ADMIN
+    public function getFavoritesCollection()
+    {
+
+        $favorites = Favorite::all();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Liste des favoris',
+            'data' => $favorites,
+        ], 200);
+    }
+
     // DELETE /api/favorites/userid/{userid}/{isbn}   ADMIN
     public function destroyByUserIdAndIsbn($userid, $isbn)
     {

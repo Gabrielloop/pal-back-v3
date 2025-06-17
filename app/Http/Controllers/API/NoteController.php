@@ -18,10 +18,40 @@ class NoteController extends Controller
         ], 200);
     }
 
-    // DELETE /api/notes/userid/{id}/{isbn}   (ADMIN)
-    public function deleteByUserIdAndIsbn($id, $isbn)
+    // PUT /api/notes/userid/{userid}/{isbn}   (ADMIN)
+    public function updateByUserIdAndIsbn(Request $request, $userid, $isbn)
     {
-        $note = Note::where('user_id', $id)->where('isbn', $isbn)->first();
+        $validated = $request->validate([
+            'note_content' => 'required|string',
+        ]);
+
+        // Vérifier si la note existe déjà
+        $note = Note::where('user_id', $userid)->where('isbn', $isbn)->first();
+
+        if (!$note) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Note non trouvée pour cet utilisateur et cet ISBN.',
+            ], 404);
+        }
+
+        // Mettre à jour la note
+        $note->update([
+            'note_content' => $validated['note_content'],
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Note mise à jour avec succès.',
+            'data' => $note,
+        ], 200);
+    }
+
+
+    // DELETE /api/notes/userid/{userid}/{isbn}   (ADMIN)
+    public function deleteByUserIdAndIsbn($userid, $isbn)
+    {
+        $note = Note::where('user_id', $userid)->where('isbn', $isbn)->first();
 
         if (!$note) {
             return response()->json([
