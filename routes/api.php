@@ -27,9 +27,6 @@ Route::middleware('auth:sanctum')->group(function () {
     // Gestion des livres (accessibles à tous les utilisateurs connectés)
     Route::get('/books/isbn/{isbn}', [BookController::class, 'getBookByIsbn']);
     Route::get('/books/title/{title}', [BookController::class, 'getBooksByTitle']);
-    Route::post('/books', [BookController::class, 'saveBook']);
-    Route::put('/books/isbn/{isbn}', [BookController::class, 'updateBook']);
-    Route::delete('/books/isbn/{isbn}', [BookController::class, 'deleteBook']);
 
     // Gestion des commentaires (accessibles à tous les utilisateurs connectés)
     Route::get('/comments/isbn/{isbn}', [CommentController::class, 'getByIsbnForCurrentUser']);
@@ -87,6 +84,8 @@ Route::middleware('auth:sanctum')->group(function () {
 
         // Gestion des livres (accessibles uniquement aux admins)
         Route::get('/books/all', [BookController::class, 'getAllBooks']);
+        Route::post('/books', [BookController::class, 'saveBook']);
+        Route::put('/books/isbn/{isbn}', [BookController::class, 'updateBook']);
         Route::delete('/books/isbn/{isbn}', [BookController::class, 'deleteBook']);
 
         // Gestion des commentaires (accessibles uniquement aux admins)
