@@ -4,6 +4,7 @@ namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
 use App\Models\Book;
+use App\Models\UserlistBook;
 use App\Models\Userlist;
 use App\Models\Reading;
 use Illuminate\Http\Request;
@@ -12,7 +13,7 @@ use Illuminate\Support\Facades\DB;
 class UserlistBookController extends Controller
 {
     // GET /api/userlistBooks/all  (ADMIN)
-    public function index()
+    public function getBooksWithUserList()
     {
         $entries = DB::table('userlist_book')->get();
 
@@ -40,6 +41,16 @@ class UserlistBookController extends Controller
         ], 200);
     }
     
+    public function index()
+    {
+        return response()->json([
+            'success' => true,
+            'message' => 'Liste de toutes les livres en liste',
+            'data' => UserlistBook::all(),
+        ], 200);
+    }
+
+
 
     // DELETE /api/userlistBooks/userlistid/{userlistid}/{isbn}   (ADMIN)
     public function deleteByUserlistId($userlistId, $isbn)

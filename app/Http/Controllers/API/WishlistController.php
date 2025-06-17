@@ -33,6 +33,18 @@ class WishlistController extends Controller
             'data' => $grouped,
         ], 200);
     }
+        
+    // GET /api/wishlist/collection   ADMIN
+    public function getWishlistsCollection()
+        {
+            $wishlists = Wishlist::all();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Liste des wishlists',
+                'data' => $wishlists,
+            ], 200);
+        }
 
     // DELETE /api/wishlists/userid/{userid}/{isbn}   ADMIN
     public function destroyByUserIdAndIsbn($userid, $isbn)
