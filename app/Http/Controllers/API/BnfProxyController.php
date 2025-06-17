@@ -54,7 +54,10 @@ class BnfProxyController extends Controller
                 ];
             }
 
-            return response()->json($books);
+            return response()->json([
+    'success' => true,
+    'data' => $books
+]);
         } catch (\Exception $e) {
             return response()->json([
                 'error' => 'Erreur BnF',
