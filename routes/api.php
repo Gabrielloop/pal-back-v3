@@ -36,9 +36,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('/comments/isbn/{isbn}', [CommentController::class, 'destroy']);
 
     Route::get('/favorites', [FavoriteController::class, 'getFavorites']);
-    Route::get('/favorites/isbn/{isbn}', [FavoriteController::class, 'getFavoriteByIsbn']);
-    Route::post('/favorites/isbn/{isbn}', [FavoriteController::class, 'store']);
-    Route::delete('/favorites/isbn/{isbn}', [FavoriteController::class, 'destroy']);
+    Route::get('/favorites/isbn/{book}', [FavoriteController::class, 'getFavoriteByIsbn']);
+    Route::post('/favorites/isbn/{book}', [FavoriteController::class, 'store']);
+    Route::delete('/favorites/isbn/{book}', [FavoriteController::class, 'destroy']);
 
     Route::get('/wishlists', [WishlistController::class, 'getWishlists']);
     Route::get('/wishlists/isbn/{isbn}', [WishlistController::class, 'getWishlistByIsbn']);

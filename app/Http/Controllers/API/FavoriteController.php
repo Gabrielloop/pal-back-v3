@@ -6,6 +6,9 @@ use App\Http\Controllers\Controller;
 use App\Models\Favorite;
 use App\Models\Book;
 use Illuminate\Http\Request;
+use App\Services\BookCacheService;
+use Illuminate\Support\Facades\Cache;
+
 
 class FavoriteController extends Controller
 {
@@ -111,11 +114,12 @@ class FavoriteController extends Controller
     // POST /api/favorites/isbn/{isbn}   USER
     public function store(Request $request, $isbn)
     {
+        $book = BookCacheService::ensurePersisted($isbn);
 
-        if (!Book::where('isbn', $isbn)->exists()) {
+        if (!$book) {
             return response()->json([
                 'success' => false,
-                'message' => 'Livre non trouvé',
+                'message' => 'Livre introuvable dans le cache.',
             ], 404);
         }
 

@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Api;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use App\Http\Controllers\Controller;
+use App\Services\BookCacheService;
+
 
 class BnfProxyController extends Controller
 {
@@ -44,20 +46,26 @@ class BnfProxyController extends Controller
 
                 if (!$dc) continue;
 
-                $books[] = [
+                $book = [
                     'title'      => $this->clean((string) $dc->children('http://purl.org/dc/elements/1.1/')->title),
-                    'isbn' => $this->extractISBN($dc->children('http://purl.org/dc/elements/1.1/')->identifier),
+                    'isbn'      =>   $this->extractISBN($dc->children('http://purl.org/dc/elements/1.1/')->identifier),
                     'author'   => $this->clean((string) $dc->children('http://purl.org/dc/elements/1.1/')->creator),
                     'year'       => (string) $dc->children('http://purl.org/dc/elements/1.1/')->date ?: 'Date inconnue',
                     'publisher'  => $this->clean((string) $dc->children('http://purl.org/dc/elements/1.1/')->publisher),
                     // 'docType'    => (string) $dc->children('http://purl.org/dc/elements/1.1/')->type ?? null,
                 ];
+
+                if (!empty($book['isbn']) && $book['isbn'] !== 'ISBN inconnu') {
+                    BookCacheService::store($book);
+                }
+
+                $books[] = $book;
             }
 
             return response()->json([
-    'success' => true,
-    'data' => $books
-]);
+                'success' => true,
+                'data' => $books
+            ], 200);
         } catch (\Exception $e) {
             return response()->json([
                 'error' => 'Erreur BnF',
