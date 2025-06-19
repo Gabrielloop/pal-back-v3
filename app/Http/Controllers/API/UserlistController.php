@@ -18,15 +18,15 @@ class UserlistController extends Controller
         ], 200);
     }
 
-    // DELETE /api/userlists/id/{id}   (ADMIN)
-    public function destroyById($id)
+    // DELETE /api/userlists/userlistid/{userlistid}   (ADMIN)
+    public function deleteUserlistByUserId($userlistId)
     {
-        $userlist = Userlist::find($id);
+        $userlist = Userlist::find($userlistId);
 
         if (!$userlist) {
             return response()->json([
                 'success' => false,
-                'message' => 'Liste non trouvée',
+                'message' => 'Liste non trouvée pour cet utilisateur',
             ], 404);
         }
 
@@ -34,27 +34,34 @@ class UserlistController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'Liste supprimée',
+            'message' => 'Liste supprimée avec succès',
             'data' => $userlist,
-        ], 200);
+        ]);
     }
-
-    // PUT /api/userlists/id/{id}   (ADMIN)
-    public function updateById(Request $request, $id)
+    
+    // PUT /api/userlists/userlistid/{userlistid}   (ADMIN)
+    public function updateUserlistByUserId(Request $request, $userlistId)
     {
-        $userlist = Userlist::findOrFail($id);
+        $userlist = Userlist::find($userlistId);
+
+        if (!$userlist) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Liste non trouvée pour cet utilisateur',
+            ], 404);
+        }
 
         $validated = $request->validate([
-            'userlist_name' => 'required|string|max:255',
+            'userlist_name' => 'sometimes|string|max:255',
             'userlist_description' => 'nullable|string',
-            'userlist_type' => 'required|string',
+            'userlist_type' => 'sometimes|string',
         ]);
 
         $userlist->update($validated);
 
         return response()->json([
             'success' => true,
-            'message' => 'Liste mise à jour',
+            'message' => 'Liste mise à jour avec succès',
             'data' => $userlist,
         ]);
     }

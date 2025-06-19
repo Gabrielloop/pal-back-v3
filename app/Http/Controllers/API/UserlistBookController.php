@@ -4,6 +4,7 @@ namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
 use App\Models\Book;
+use App\Models\UserlistBook;
 use App\Models\Userlist;
 use App\Models\Reading;
 use Illuminate\Http\Request;
@@ -12,7 +13,7 @@ use Illuminate\Support\Facades\DB;
 class UserlistBookController extends Controller
 {
     // GET /api/userlistBooks/all  (ADMIN)
-    public function index()
+    public function getBooksWithUserList()
     {
         $entries = DB::table('userlist_book')->get();
 
@@ -39,58 +40,49 @@ class UserlistBookController extends Controller
             'data' => $grouped,
         ], 200);
     }
-
-    // DELETE /api/userlistBooks/id/{id}   (ADMIN)
-    public function destroyById($id)
+    
+    public function index()
     {
-        $deleted = DB::table('userlist_book')->where('id', $id)->delete();
+        return response()->json([
+            'success' => true,
+            'message' => 'Liste de toutes les livres en liste',
+            'data' => UserlistBook::all(),
+        ], 200);
+    }
+
+
+
+    // DELETE /api/userlistBooks/userlistid/{userlistid}/{isbn}   (ADMIN)
+    public function deleteByUserlistId($userlistId, $isbn)
+    {
+
+        $userlist = Userlist::find($userlistId);
+        if (!$userlist) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Liste non trouvée',
+            ], 404);
+        }
+
+        $deleted = DB::table('userlist_book')
+            ->where('userlist_id', $userlistId)
+            ->where('isbn', $isbn)
+            ->delete();
 
         if (!$deleted) {
             return response()->json([
                 'success' => false,
-                'message' => 'Entrée non trouvée',
+                'message' => 'Livre non trouvé dans la liste',
             ], 404);
         }
 
         return response()->json([
             'success' => true,
-            'message' => 'Entrée supprimée',
-        ], 200);
-    }
-    // PUT /api/userlistBooks/id/{id}   (ADMIN)
-    public function updateById(Request $request, $id)
-    {
-        $validated = $request->validate([
-            'userlist_id' => 'required|exists:userlists,userlist_id',
-            'isbn' => 'required|exists:books,isbn',
-        ]);
-
-        $updated = DB::table('userlist_book')
-            ->where('id', $id)
-            ->update([
-                'userlist_id' => $validated['userlist_id'],
-                'isbn' => $validated['isbn'],
-                'updated_at' => now(),
-            ]);
-
-        if (!$updated) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Entrée non trouvée ou non mise à jour',
-            ], 404);
-        }
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Entrée mise à jour',
-            'data' => [
-                'id' => $id,
-                'userlist_id' => $validated['userlist_id'],
-                'isbn' => $validated['isbn'],
-            ]
+            'message' => 'Livre supprimé de la liste',
         ], 200);
     }
 
+ 
     // POST /api/userlistBooks   (USER)
    public function store(Request $request)
     {

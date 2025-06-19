@@ -6,6 +6,9 @@ use App\Http\Controllers\Controller;
 use App\Models\Favorite;
 use App\Models\Book;
 use Illuminate\Http\Request;
+use App\Services\BookCacheService;
+use Illuminate\Support\Facades\Cache;
+
 
 class FavoriteController extends Controller
 {
@@ -34,10 +37,25 @@ class FavoriteController extends Controller
         ], 200);
     }
 
-    // DELETE /api/favorites/id/{id}   ADMIN
-    public function destroyById($id)
+    // GET /api/favorites/collection   ADMIN
+    public function getFavoritesCollection()
     {
-        $favorite = Favorite::find($id);
+
+        $favorites = Favorite::all();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Liste des favoris',
+            'data' => $favorites,
+        ], 200);
+    }
+
+    // DELETE /api/favorites/userid/{userid}/{isbn}   ADMIN
+    public function destroyByUserIdAndIsbn($userid, $isbn)
+    {
+        $favorite = Favorite::where('user_id', $userid)
+            ->where('isbn', $isbn)
+            ->first();
 
         if (!$favorite) {
             return response()->json([
@@ -54,7 +72,6 @@ class FavoriteController extends Controller
             'data' => $favorite,
         ], 200);
     }
-
 
     // GET /api/favorites   USER
     public function getFavorites(Request $request)
@@ -97,11 +114,12 @@ class FavoriteController extends Controller
     // POST /api/favorites/isbn/{isbn}   USER
     public function store(Request $request, $isbn)
     {
+        $book = BookCacheService::ensurePersisted($isbn);
 
-        if (!Book::where('isbn', $isbn)->exists()) {
+        if (!$book) {
             return response()->json([
                 'success' => false,
-                'message' => 'Livre non trouvé',
+                'message' => 'Livre introuvable dans le cache.',
             ], 404);
         }
 

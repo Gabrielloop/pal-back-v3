@@ -18,10 +18,12 @@ class CommentController extends Controller
         ], 200);
     }
 
-    // DELETE /api/comments/id/{id}   ADMIN
-    public function destroyById($id)
+    // DELETE /api/comments/userid/{userid}/{isbn}/   ADMIN
+    public function destroyByUserIdAndIsbn($userid, $isbn)
     {
-        $comment = Comment::find($id);
+        $comment = Comment::where('user_id', $userid)
+                        ->where('isbn', $isbn)
+                        ->first();
 
         if (!$comment) {
             return response()->json([
@@ -36,12 +38,16 @@ class CommentController extends Controller
             'success' => true,
             'message' => 'Commentaire supprimé',
             'data' => $comment,
-        ], 200);
+        ]);
     }
-    // PUT /api/comments/id/{id}   ADMIN
-    public function updateById(Request $request, $id)
+    
+
+    // PUT /api/com/api/comments/userid/{userid}/{isbn}/   ADMIN
+    public function updateByUserIdAndIsbn(Request $request, $userid, $isbn)
     {
-        $comment = Comment::findOrFail($id);
+        $comment = Comment::where('user_id', $userid)
+                        ->where('isbn', $isbn)
+                        ->firstOrFail();
 
         $validated = $request->validate([
             'comment_content' => 'required|string',

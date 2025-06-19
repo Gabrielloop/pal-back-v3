@@ -18,15 +18,45 @@ class NoteController extends Controller
         ], 200);
     }
 
-    // DELETE /api/notes/id/{id}   (ADMIN)
-    public function destroyById($id)
+    // PUT /api/notes/userid/{userid}/{isbn}   (ADMIN)
+    public function updateByUserIdAndIsbn(Request $request, $userid, $isbn)
     {
-        $note = Note::find($id);
+        $validated = $request->validate([
+            'note_content' => 'required|string',
+        ]);
+
+        // Vérifier si la note existe déjà
+        $note = Note::where('user_id', $userid)->where('isbn', $isbn)->first();
 
         if (!$note) {
             return response()->json([
                 'success' => false,
-                'message' => 'Note non trouvée',
+                'message' => 'Note non trouvée pour cet utilisateur et cet ISBN.',
+            ], 404);
+        }
+
+        // Mettre à jour la note
+        $note->update([
+            'note_content' => $validated['note_content'],
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Note mise à jour avec succès.',
+            'data' => $note,
+        ], 200);
+    }
+
+
+    // DELETE /api/notes/userid/{userid}/{isbn}   (ADMIN)
+    public function deleteByUserIdAndIsbn($userid, $isbn)
+    {
+        $note = Note::where('user_id', $userid)->where('isbn', $isbn)->first();
+
+        if (!$note) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Note non trouvée pour cet utilisateur et cet ISBN.',
             ], 404);
         }
 
@@ -34,25 +64,7 @@ class NoteController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'Note supprimée',
-            'data' => $note,
-        ], 200);
-    }
-    // PUT /api/notes/id/{id}   (ADMIN)
-    public function updateById(Request $request, $id)
-    {
-        $note = Note::findOrFail($id);
-
-        $validated = $request->validate([
-            'note_content' => 'required|string',
-        ]);
-
-        $note->update($validated);
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Note mise à jour',
-            'data' => $note,
+            'message' => 'Note supprimée avec succès.',
         ], 200);
     }
 

@@ -33,11 +33,25 @@ class WishlistController extends Controller
             'data' => $grouped,
         ], 200);
     }
+        
+    // GET /api/wishlist/collection   ADMIN
+    public function getWishlistsCollection()
+        {
+            $wishlists = Wishlist::all();
 
-    // DELETE /api/wishlists/id/{id}   ADMIN
-    public function destroyById($id)
+            return response()->json([
+                'success' => true,
+                'message' => 'Liste des wishlists',
+                'data' => $wishlists,
+            ], 200);
+        }
+
+    // DELETE /api/wishlists/userid/{userid}/{isbn}   ADMIN
+    public function destroyByUserIdAndIsbn($userid, $isbn)
     {
-        $wishlist = Wishlist::find($id);
+        $wishlist = Wishlist::where('user_id', $userid)
+            ->where('isbn', $isbn)
+            ->first();
 
         if (!$wishlist) {
             return response()->json([
@@ -55,23 +69,6 @@ class WishlistController extends Controller
         ], 200);
     }
 
-    // PUT /api/wishlists/id/{id}   ADMIN
-    public function updateById(Request $request, $id)
-    {
-        $wishlist = Wishlist::findOrFail($id);
-
-        $validated = $request->validate([
-            'isbn' => 'required|string|exists:books,isbn',
-        ]);
-
-        $wishlist->update($validated);
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Wishlist mise à jour',
-            'data' => $wishlist,
-        ], 200);
-    }
 
     // GET /api/wishlists   USER
     public function getWishlists(Request $request)
