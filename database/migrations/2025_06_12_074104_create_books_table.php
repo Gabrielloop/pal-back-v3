@@ -8,10 +8,10 @@ return new class extends Migration {
     public function up(): void {
         Schema::create('books', function (Blueprint $table) {
             $table->string('isbn')->primary();
-            $table->string('book_title');
-            $table->string('book_author');
-            $table->string('book_publisher')->nullable();
-            $table->year('book_year')->nullable();
+            $table->string('title');
+            $table->string('author');
+            $table->string('publisher')->nullable();
+            $table->year('year')->nullable();
             $table->timestamps();
         });
     }

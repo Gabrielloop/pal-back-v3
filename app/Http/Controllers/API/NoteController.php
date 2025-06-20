@@ -92,10 +92,10 @@ class NoteController extends Controller
         $data = $notes->map(function ($note) {
             return [
                 'isbn' => $note->book->isbn,
-                'title' => $note->book->book_title,
-                'author' => $note->book->book_author,
-                'publisher' => $note->book->book_publisher,
-                'year' => $note->book->book_year,
+                'title' => $note->book->title,
+                'author' => $note->book->author,
+                'publisher' => $note->book->publisher,
+                'year' => $note->book->year,
                 'note_content' => $note->note_content,
             ];
         });

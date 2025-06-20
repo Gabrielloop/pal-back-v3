@@ -6,7 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use App\Http\Controllers\Controller;
 use App\Services\BookCacheService;
-
+use App\Models\Book;
 
 class BnfProxyController extends Controller
 {
@@ -45,6 +45,16 @@ class BnfProxyController extends Controller
                              ->dc;
 
                 if (!$dc) continue;
+
+                $isbn = $this->extractISBN($dc->children('http://purl.org/dc/elements/1.1/')->identifier);
+
+                if (empty($isbn) || $isbn === 'ISBN inconnu') continue;
+                
+                $bookModel = Book::find($isbn);
+                if ($bookModel) {
+                    $books[] = $bookModel; // contient les accessors dynamiques
+                    continue;
+                }
 
                 $book = [
                     'title'      => $this->clean((string) $dc->children('http://purl.org/dc/elements/1.1/')->title),
