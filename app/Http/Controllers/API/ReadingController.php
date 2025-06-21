@@ -63,7 +63,6 @@ class ReadingController extends Controller
         ]);
     }
 
-    // GET /api/reading/notStarted   (USER)
 
     public function getNotStarted(Request $request)
     {
