@@ -9,6 +9,7 @@ use App\Models\Userlist;
 use App\Models\Reading;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use App\Services\BookCacheService;
 
 class UserlistBookController extends Controller
 {
@@ -26,10 +27,10 @@ class UserlistBookController extends Controller
 
             return [
                 'isbn' => $book?->isbn,
-                'book_title' => $book?->book_title,
-                'book_author' => $book?->book_author,
-                'book_publisher' => $book?->book_publisher,
-                'book_year' => $book?->book_year,
+                'title' => $book?->title,
+                'author' => $book?->author,
+                'publisher' => $book?->publisher,
+                'year' => $book?->year,
                 'lists' => $lists,
             ];
         })->values();
@@ -88,7 +89,7 @@ class UserlistBookController extends Controller
     {
         $validated = $request->validate([
             'userlist_id' => 'required|exists:userlists,userlist_id',
-            'isbn' => 'required|exists:books,isbn',
+            'isbn' => 'required',
         ]);
 
         $userId = $request->user()->id;
@@ -102,6 +103,16 @@ class UserlistBookController extends Controller
                 'success' => false,
                 'message' => 'Liste non trouvée ou non autorisée',
             ], 403);
+        }
+
+        $isbn = $validated['isbn'];
+        $book = BookCacheService::ensurePersisted($isbn);
+
+        if (!$book) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Livre introuvable dans le cache.',
+            ], 404);
         }
 
         // Vérifie la présence du livre dans la liste

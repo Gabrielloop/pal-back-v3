@@ -32,7 +32,7 @@ class BookController extends Controller
     // GET /api/books/title/{title} USER
     public function getBooksByTitle($title)
     {
-        $books = Book::where('book_title', 'like', '%' . $title . '%')->get();
+        $books = Book::where('title', 'like', '%' . $title . '%')->get();
         return response()->json([
             'success' => true,
             'message' => 'Recherche par titre : ' . $title,
@@ -45,10 +45,10 @@ class BookController extends Controller
     {
         $validated = $request->validate([
             'isbn' => 'required|string|unique:books',
-            'book_title' => 'required|string|max:255',
-            'book_author' => 'required|string|max:255',
-            'book_publisher' => 'nullable|string|max:255',
-            'book_year' => 'nullable|integer',
+            'title' => 'required|string|max:255',
+            'author' => 'required|string|max:255',
+            'publisher' => 'nullable|string|max:255',
+            'year' => 'nullable|integer',
         ]);
 
         $book = Book::create($validated);
@@ -66,10 +66,10 @@ class BookController extends Controller
         $book = Book::findOrFail($isbn);
 
         $validated = $request->validate([
-            'book_title' => 'sometimes|string|max:255',
-            'book_author' => 'sometimes|string|max:255',
-            'book_publisher' => 'sometimes|nullable|string|max:255',
-            'book_year' => 'sometimes|nullable|integer',
+            'title' => 'sometimes|string|max:255',
+            'author' => 'sometimes|string|max:255',
+            'publisher' => 'sometimes|nullable|string|max:255',
+            'year' => 'sometimes|nullable|integer',
         ]);
 
         $book->update($validated);

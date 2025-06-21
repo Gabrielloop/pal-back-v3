@@ -30,9 +30,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/books/isbn/{isbn}', [BookController::class, 'getBookByIsbn']);
     Route::get('/books/title/{title}', [BookController::class, 'getBooksByTitle']);
 
+    Route::get('/comments', [CommentController::class, 'getCommentForUser']);
     Route::get('/comments/isbn/{isbn}', [CommentController::class, 'getByIsbnForCurrentUser']);
-    Route::post('/comments', [CommentController::class, 'store']);
-    Route::put('/comments/isbn/{isbn}', [CommentController::class, 'update']);
+    Route::post('/comments', [CommentController::class, 'addOrUpdateComment']);
     Route::delete('/comments/isbn/{isbn}', [CommentController::class, 'destroy']);
 
     Route::get('/favorites', [FavoriteController::class, 'getFavorites']);
@@ -56,7 +56,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/userlistBooks', [UserlistBookController::class, 'store']);
     Route::delete('/userlistBooks/{listId}/{isbn}', [UserlistBookController::class, 'destroy']);
 
-    Route::get('/notes/note/{note}', [NoteController::class, 'getBooksByUserAndNote']);
+    Route::get('/notes', [NoteController::class, 'getBooksByUserAndNote']);
     Route::post('/notes/isbn/{isbn}', [NoteController::class, 'storeOrUpdateOrDelete']);
 
     Route::get('/reading/all', [ReadingController::class, 'index']);

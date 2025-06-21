@@ -33,15 +33,15 @@ class BookCacheService
 
         return Book::create([
             'isbn' => $isbn,
-            'book_title' => $cached['title'] ?? 'Titre inconnu',
-            'book_author' => $cached['author'] ?? 'Auteur inconnu',
-            'book_publisher' => $cached['publisher'] ?? 'Éditeur inconnu',
-            'book_year' => $cached['year'] ?? 'Année inconnue',
+            'title' => $cached['title'] ?? 'Titre inconnu',
+            'author' => $cached['author'] ?? 'Auteur inconnu',
+            'publisher' => $cached['publisher'] ?? 'Éditeur inconnu',
+            'year' => $cached['year'] ?? 'Année inconnue',
         ]);
     }
 
     private static function cacheKey(string $isbn): string
     {
-        return 'book_isbn_' . $isbn;
+        return 'isbn_' . $isbn;
     }
 }

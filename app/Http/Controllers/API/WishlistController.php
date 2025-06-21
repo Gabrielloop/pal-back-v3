@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Wishlist;
 use App\Models\Book;
 use Illuminate\Http\Request;
+use App\Services\BookCacheService;
 
 class WishlistController extends Controller
 {
@@ -19,10 +20,10 @@ class WishlistController extends Controller
 
             return [
                 'isbn' => $book->isbn,
-                'book_title' => $book->book_title,
-                'book_author' => $book->book_author,
-                'book_publisher' => $book->book_publisher,
-                'book_year' => $book->book_year,
+                'title' => $book->title,
+                'author' => $book->author,
+                'publisher' => $book->publisher,
+                'year' => $book->year,
                 'users' => $items->pluck('user_id')->unique()->values()
             ];
         })->values();
@@ -111,6 +112,15 @@ class WishlistController extends Controller
     // POST /api/wishlists/isbn/{isbn}   USER
     public function store(Request $request, $isbn)
     {
+         $book = BookCacheService::ensurePersisted($isbn);
+
+        if (!$book) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Livre introuvable dans le cache.',
+            ], 404);
+        }
+
 
         if (!Book::where('isbn', $isbn)->exists()) {
             return response()->json([

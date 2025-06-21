@@ -28,10 +28,10 @@ class Book extends Model
 
     protected $fillable = [
         'isbn',
-        'book_title',
-        'book_author',
-        'book_publisher',
-        'book_year',
+        'title',
+        'author',
+        'publisher',
+        'year',
     ];
 
     // Accessors

@@ -22,10 +22,10 @@ class FavoriteController extends Controller
 
             return [
                 'isbn' => $book->isbn,
-                'book_title' => $book->book_title,
-                'book_author' => $book->book_author,
-                'book_publisher' => $book->book_publisher,
-                'book_year' => $book->book_year,
+                'title' => $book->title,
+                'author' => $book->author,
+                'publisher' => $book->publisher,
+                'year' => $book->year,
                 'users' => $items->pluck('user_id')->unique()->values()
             ];
         })->values();

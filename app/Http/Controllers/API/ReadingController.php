@@ -63,7 +63,6 @@ class ReadingController extends Controller
         ]);
     }
 
-    // GET /api/reading/notStarted   (USER)
 
     public function getNotStarted(Request $request)
     {
@@ -114,10 +113,10 @@ class ReadingController extends Controller
             $book = $reading->book;
             return [
                 'isbn' => $reading->isbn,
-                'book_title' => $book->book_title,
-                'book_author' => $book->book_author,
-                'book_publisher' => $book->book_publisher,
-                'book_year' => $book->book_year,
+                'title' => $book->title,
+                'author' => $book->author,
+                'publisher' => $book->publisher,
+                'year' => $book->year,
                 'reading_content' => $reading->reading_content,
                 'is_started' => $reading->is_started,
                 'is_reading' => $reading->is_reading,
@@ -211,10 +210,10 @@ class ReadingController extends Controller
 
             return [
                 'isbn' => $reading->isbn,
-                'book_title' => $book?->book_title,
-                'book_author' => $book?->book_author,
-                'book_publisher' => $book?->book_publisher,
-                'book_year' => $book?->book_year,
+                'title' => $book?->title,
+                'author' => $book?->author,
+                'publisher' => $book?->publisher,
+                'year' => $book?->year,
                 'reading_content' => $reading->reading_content,
                 'is_started' => $reading->is_started,
                 'is_reading' => $reading->is_reading,

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\API;
 use App\Http\Controllers\Controller;
 use App\Models\Note;
 use Illuminate\Http\Request;
+use App\Services\BookCacheService;
 
 class NoteController extends Controller
 {
@@ -68,41 +69,32 @@ class NoteController extends Controller
         ], 200);
     }
 
-    // GET /api/notes/note/{note}   (USER)
-    public function getBooksByUserAndNote(Request $request, $note)
+    // GET /api/notes/   (USER)
+    public function getBooksByUserAndNote(Request $request)
     {
-
-         // Validation manuelle du paramètre $note
-        if (!is_numeric($note) || (int)$note < 0 || (int)$note > 5) {
-            return response()->json([
-                'success' => false,
-                'message' => 'La note doit être un entier entre 0 et 5.',
-            ], 422);
-        }
 
         $userId = $request->user()->id;
 
         // Récupérer les notes avec le livre associé
         $notes = Note::with('book')
             ->where('user_id', $userId)
-            ->where('note_content', $note)
             ->get();
 
         // Formater les données
         $data = $notes->map(function ($note) {
             return [
                 'isbn' => $note->book->isbn,
-                'title' => $note->book->book_title,
-                'author' => $note->book->book_author,
-                'publisher' => $note->book->book_publisher,
-                'year' => $note->book->book_year,
+                'title' => $note->book->title,
+                'author' => $note->book->author,
+                'publisher' => $note->book->publisher,
+                'year' => $note->book->year,
                 'note_content' => $note->note_content,
             ];
         });
 
         return response()->json([
             'success' => true,
-            'message' => "Livres notés {$note}* par l’utilisateur",
+            'message' => "Livres notés par l’utilisateur",
             'data' => $data,
         ],200);
     }
@@ -110,6 +102,18 @@ class NoteController extends Controller
     // POST /api/notes/isbn/{isbn}  (USER)
     public function storeOrUpdateOrDelete(Request $request, $isbn)
     {
+        $isbn = $request->input('isbn', $isbn);
+        $book = BookCacheService::ensurePersisted($isbn);
+
+        if (!$book) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Livre introuvable dans le cache.',
+            ], 404);
+        }
+
+
+
         $validated = $request->validate([
             'note_content' => 'required|string',
         ]);
