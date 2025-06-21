@@ -5,6 +5,7 @@ namespace App\Http\Controllers\API;
 use App\Http\Controllers\Controller;
 use App\Models\Comment;
 use Illuminate\Http\Request;
+use App\Services\BookCacheService;
 
 class CommentController extends Controller
 {
@@ -97,49 +98,86 @@ class CommentController extends Controller
         ]);
     }
 
-    // POST /api/comments/   USER
-    public function store(Request $request)
-    {
-        $validated = $request->validate([
-            'isbn' => 'required|string|exists:books,isbn',
-            'comment_content' => 'required|string',
-        ]);
-
-        $comment = Comment::create([
-            'isbn' => $validated['isbn'],
-            'user_id' => $request->user()->id,
-            'comment_content' => $validated['comment_content'],
-        ]);
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Commentaire ajouté',
-            'data' => $comment,
-        ], 201);
-    }
-
-    // PUT /api/comments/isbn/{isbn}     USER
-    public function update(Request $request, $isbn)
+    // GET /api/comments/  USER
+     public function getCommentForUser(Request $request)
     {
         $userId = $request->user()->id;
-
-        $comment = Comment::where('isbn', $isbn)
-                        ->where('user_id', $userId)
-                        ->firstOrFail();
-
-        $validated = $request->validate([
-            'comment_content' => 'required|string',
-        ]);
-
-        $comment->update($validated);
-
+        $comments = Comment::where('user_id', $userId)->get();
         return response()->json([
             'success' => true,
-            'message' => 'Commentaire mis à jour',
-            'data' => $comment,
-        ]);
+            'message' => 'Commentaires de l’utilisateur',
+            'data' => $comments,
+        ], 200);
     }
+    
 
+    // POST /api/comments/   USER
+        public function addOrUpdateComment(Request $request)
+        {
+
+            $isbn = $request->input('isbn');
+            $book = BookCacheService::ensurePersisted($isbn);
+
+            if (!$book) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Livre introuvable dans le cache.',
+                ], 404);
+            }
+
+
+            $validated = $request->validate([
+                'isbn' => 'required|string|exists:books,isbn',
+                'comment_content' => 'nullable|string|max:255',
+            ]);
+
+            $userId = $request->user()->id;
+
+            $comment = Comment::where('isbn', $validated['isbn'])
+                ->where('user_id', $userId)
+                ->first();
+
+            if (empty(trim($validated['comment_content']))) {
+                if ($comment) {
+                    $comment->delete();
+                    return response()->json([
+                        'success' => true,
+                        'message' => 'Commentaire supprimé',
+                    ]);
+                } else {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Aucun commentaire à supprimer',
+                    ], 404);
+                }
+            }
+
+            if ($comment) {
+                $comment->update([
+                    'comment_content' => $validated['comment_content'],
+                ]);
+
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Commentaire mis à jour',
+                    'data' => $comment,
+                ]);
+            }
+
+            $comment = Comment::create([
+                'isbn' => $validated['isbn'],
+                'user_id' => $userId,
+                'comment_content' => $validated['comment_content'],
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Commentaire ajouté',
+                'data' => $comment,
+            ], 201);
+        }
+
+    
     // DELETE /api/comments/isbn/{isbn}   USER
     public function destroy($isbn, Request $request)
     {
