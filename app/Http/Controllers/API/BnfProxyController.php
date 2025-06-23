@@ -24,8 +24,8 @@ class BnfProxyController extends Controller
             'version' => '1.2',
             'operation' => 'searchRetrieve',
             'query' => $finalQuery,
-            'startRecord' => 1 + ($page - 1) * 10,
-            'maximumRecords' => $isIsbn ? 1 : 10,
+            'startRecord' => 1 + ($page - 1) * 30,
+            'maximumRecords' => $isIsbn ? 1 : 30,
             'recordSchema' => 'dc',
         ];
 

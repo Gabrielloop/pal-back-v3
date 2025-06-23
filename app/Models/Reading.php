@@ -6,6 +6,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class Reading extends Model
 {
+    public $incrementing = false; 
+    protected $primaryKey = null; 
 
     public $timestamps = true;
 
@@ -17,6 +19,8 @@ class Reading extends Model
         'is_reading',
         'is_finished',
         'is_abandoned',
+        'started_at',
+        'finished_at',
     ];
 
     protected $casts = [
@@ -24,7 +28,16 @@ class Reading extends Model
         'is_finished' => 'boolean',
         'is_abandoned' => 'boolean',
         'is_reading' => 'boolean',
+        'started_at' => 'datetime:Y-m-d',
+        'finished_at' => 'datetime:Y-m-d',
     ];
+
+    protected $dates = ['started_at', 'finished_at'];
+
+    protected function serializeDate(\DateTimeInterface $date): string
+    {
+        return $date->format('Y-m-d');
+    }
 
     public function book()
         { 

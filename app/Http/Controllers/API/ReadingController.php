@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Reading;
 use App\Models\Book;
 use Illuminate\Http\Request;
+use App\Services\BookCacheService;
 
 class ReadingController extends Controller
 {
@@ -21,17 +22,13 @@ class ReadingController extends Controller
     // DELETE /api/reading/userid/{userid}/{isbn}   (ADMIN)
     public function destroyByUserIdAndIsbn($userid, $isbn)
     {
-        $reading = Reading::where('user_id', $userid)
-            ->where('isbn', $isbn)
-            ->first();
+        $reading = Reading::where('user_id', $userid)->where('isbn', $isbn)->first();
 
         if (!$reading) {
             return response()->json(['success' => false, 'message' => 'Lecture non trouvée'], 404);
         }
 
-        $reading->where('user_id', $userid)
-            ->where('isbn', $isbn)
-            ->delete();
+        $reading->delete();
 
         return response()->json(['success' => true, 'message' => 'Lecture supprimée']);
     }
@@ -49,17 +46,21 @@ class ReadingController extends Controller
             'is_reading' => 'required|boolean',
             'is_finished' => 'required|boolean',
             'is_abandoned' => 'required|boolean',
+            'started_at' => 'nullable|date',
+            'finished_at' => 'nullable|date',
         ]);
 
-        // TODO : maj de la réponse pour envoyer l'objet modifié
-        $reading->where('user_id', $userid)
-            ->where('isbn', $isbn)
-            ->update($validated);
+
+   $validated['started_at'] = $validated['started_at'] === '' ? null : $validated['started_at'];
+    $validated['finished_at'] = $validated['finished_at'] === '' ? null : $validated['finished_at'];
+
+
+         $reading->update($validated);
 
         return response()->json([
             'success' => true,
             'message' => 'Lecture mise à jour',
-            'data' => $reading,
+            'data' => $this->formatSingleReading($reading),
         ]);
     }
 
@@ -120,8 +121,8 @@ class ReadingController extends Controller
                 'reading_content' => $reading->reading_content,
                 'is_started' => $reading->is_started,
                 'is_reading' => $reading->is_reading,
-                'is_finished' => $reading->is_finished,
-                'is_abandoned' => $reading->is_abandoned,
+                'started_at' => $reading->started_at?->format('Y-m-d') ?? null,
+                'finished_at' => $reading->finished_at?->format('Y-m-d') ?? null,
             ];
         });
 
@@ -137,6 +138,24 @@ class ReadingController extends Controller
     {
         $userId = $request->user()->id;
 
+        $book = BookCacheService::ensurePersisted($isbn);
+
+        if (!$book) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Livre introuvable dans le cache.',
+            ], 404);
+        }
+
+        $validated = $request->validate([
+        'started_at' => $validated['started_at'],
+        'finished_at' => $validated['finished_at'],
+            ]);
+
+   $validated['started_at'] = $validated['started_at'] === '' ? null : $validated['started_at'];
+    $validated['finished_at'] = $validated['finished_at'] === '' ? null : $validated['finished_at'];
+
+
         $book = Book::where('isbn', $isbn)->first();
         if (!$book) {
             return response()->json(['success' => false, 'message' => 'Livre inexistant'], 404);
@@ -150,59 +169,76 @@ class ReadingController extends Controller
                 'is_reading' => false,
                 'is_finished' => false,
                 'is_abandoned' => false,
+                'started_at' => $request->started_at,
+                'finished_at' => $request->finished_at,
             ]
         );
 
         return response()->json([
             'success' => true,
             'message' => 'Lecture initialisée',
-            'data' => $reading,
+            'data' => $this->formatSingleReading($reading),
         ]);
     }
 
     // POST /api/reading/set/{isbn}
     public function setProgress(Request $request, $isbn)
     {
-        $validated = $request->validate([
-            'reading_content' => 'required|integer|min:0|max:100',
+
+            $request->merge([
+        'started_at' => $request->started_at === '' ? null : $request->started_at,
+        'finished_at' => $request->finished_at === '' ? null : $request->finished_at,
         ]);
+
+        $validated = $request->validate([
+        'reading_content' => 'required|integer|min:0|max:100',
+        'started_at' => 'nullable|date',
+        'finished_at' => 'nullable|date',
+            ]);
+
 
         $userId = $request->user()->id;
 
-        $book = Book::where('isbn', $isbn)->first();
+        $isbn = $request->input('isbn', $isbn);
+        $book = BookCacheService::ensurePersisted($isbn);
+
         if (!$book) {
-            return response()->json(['success' => false, 'message' => 'Livre inexistant'], 404);
+            return response()->json([
+                'success' => false,
+                'message' => 'Livre introuvable dans le cache.',
+            ], 404);
         }
 
-        $reading = Reading::where('user_id', $userId)->where('isbn', $isbn)->first();
+         // Calcul des états de lecture
+            $progress = (int) $validated['reading_content'];
+            $isStarted = $progress > 0;
+            $isReading = $progress > 0 && $progress < 100;
+            $isFinished = $progress === 100;
+            
 
-        if (!$reading) {
-            return response()->json(['success' => false, 'message' => 'Lecture non trouvée'], 404);
+            // Création ou mise à jour de la lecture
+            $reading = Reading::updateOrCreate(
+                ['user_id' => $userId, 'isbn' => $isbn],
+                [
+                    'reading_content' => $progress,
+                    'is_started' => $isStarted,
+                    'is_reading' => $isReading,
+                    'is_finished' => $isFinished,
+                    'is_abandoned' => false,
+                    'started_at' => $validated['started_at'],
+                    'finished_at' => $validated['finished_at'],
+                ]
+            );
+
+            // Rechargement avec la relation `book`
+            $reading->load('book');
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Avancement mis à jour',
+                'data' => $this->formatSingleReading($reading),
+            ]);
         }
-
-        $progress = $validated['reading_content'];
-
-        Reading::where('user_id', $userId)
-            ->where('isbn', $isbn)
-            ->update([
-            'reading_content' => $progress,
-            'is_started' => $progress > 0 && $progress < 100,
-            'is_reading' => $progress > 0 && $progress < 100,
-            'is_finished' => $progress === 100,
-            'is_abandoned' => false,
-        ]);
-
-        $reading = Reading::with('book')
-            ->where('user_id', $userId)
-            ->where('isbn', $isbn)
-            ->first();
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Avancement mis à jour',
-            'data' => $this->formatSingleReading($reading)
-        ]);
-    }
 
     private function formatSingleReading($reading)
         {
@@ -219,6 +255,8 @@ class ReadingController extends Controller
                 'is_reading' => $reading->is_reading,
                 'is_finished' => $reading->is_finished,
                 'is_abandoned' => $reading->is_abandoned,
+                'started_at' => optional($reading->started_at)->format('Y-m-d'),
+                'finished_at' => optional($reading->finished_at)->format('Y-m-d'),
             ];
         }
 
@@ -227,30 +265,35 @@ class ReadingController extends Controller
     {
         $userId = $request->user()->id;
 
+         $book = BookCacheService::ensurePersisted($isbn);
+
+        if (!$book) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Livre introuvable dans le cache.',
+            ], 404);
+        }
+        
         $reading = Reading::where('user_id', $userId)->where('isbn', $isbn)->first();
 
         if (!$reading) {
             return response()->json(['success' => false, 'message' => 'Lecture non trouvée'], 404);
         }
 
-        $reading->where('user_id', $userId)
-            ->where('isbn', $isbn)
-            ->update([
-            'reading_content' => 0,
-            'is_started' => false,
-            'is_reading' => false,
-            'is_finished' => false,
-            'is_abandoned' => true,
-        ]);
+        $reading->update([
+        'reading_content' => 0,
+        'is_started' => false,
+        'is_reading' => false,
+        'is_finished' => false,
+        'is_abandoned' => true,
+    ]);
 
-         $reading = $reading->where('user_id', $userId)
-            ->where('isbn', $isbn)
-            ->first();
+    $reading->refresh();
 
         return response()->json([
             'success' => true,
             'message' => 'Lecture abandonnée',
-            'data' => $reading,
+            'data' => $this->formatSingleReading($reading),
         ]);
     }
 }
