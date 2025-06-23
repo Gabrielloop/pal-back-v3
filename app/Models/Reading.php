@@ -6,8 +6,9 @@ use Illuminate\Database\Eloquent\Model;
 
 class Reading extends Model
 {
-    public $incrementing = false; 
-    protected $primaryKey = null; 
+     protected $primaryKey = 'isbn';
+    public $incrementing = false;
+    protected $keyType = 'string';
 
     public $timestamps = true;
 

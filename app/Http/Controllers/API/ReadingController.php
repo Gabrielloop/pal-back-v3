@@ -64,6 +64,19 @@ class ReadingController extends Controller
         ]);
     }
 
+    public function collection(Request $request)
+    {
+        $userId = $request->user()->id;
+        $readings = Reading::with('book')->where('user_id', $userId)->get();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Favoris de l’utilisateur',
+            'data' => $readings->pluck('book'),
+        ], 200);
+    }
+
+
 
     public function getNotStarted(Request $request)
     {
@@ -183,62 +196,69 @@ class ReadingController extends Controller
 
     // POST /api/reading/set/{isbn}
     public function setProgress(Request $request, $isbn)
-    {
-
-            $request->merge([
+{
+    $request->merge([
         'started_at' => $request->started_at === '' ? null : $request->started_at,
         'finished_at' => $request->finished_at === '' ? null : $request->finished_at,
-        ]);
+    ]);
 
-        $validated = $request->validate([
+    $validated = $request->validate([
         'reading_content' => 'required|integer|min:0|max:100',
         'started_at' => 'nullable|date',
         'finished_at' => 'nullable|date',
-            ]);
+    ]);
+
+    $userId = $request->user()->id;
+    $isbn = $request->input('isbn', $isbn);
+    $book = BookCacheService::ensurePersisted($isbn);
+
+    if (!$book) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Livre introuvable dans le cache.',
+        ], 404);
+    }
+
+    // Cherche ou crée une nouvelle instance sans écraser
+    $reading = Reading::firstOrNew([
+        'user_id' => $userId,
+        'isbn' => $isbn,
+    ]);
+
+    // Mise à jour seulement de ce qu’on veut modifier
+    $progress = (int) $validated['reading_content'];
+    $reading->reading_content = $progress;
+    $reading->is_started = $progress > 0;
+    $reading->is_reading = $progress > 0 && $progress < 100;
+    $reading->is_finished = $progress === 100;
 
 
-        $userId = $request->user()->id;
+    if ($request->exists('started_at')) {
+        $reading->started_at = $validated['started_at'];
+    }
 
-        $isbn = $request->input('isbn', $isbn);
-        $book = BookCacheService::ensurePersisted($isbn);
+    if ($request->exists('finished_at')) {
+        $reading->finished_at = $validated['finished_at'];
+    }
 
-        if (!$book) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Livre introuvable dans le cache.',
-            ], 404);
-        }
+    if (!$reading->exists) {
+        $reading->is_abandoned = false;
+    }
 
-         // Calcul des états de lecture
-            $progress = (int) $validated['reading_content'];
-            $isStarted = $progress > 0;
-            $isReading = $progress > 0 && $progress < 100;
-            $isFinished = $progress === 100;
-            
+    if ($progress >= 0) {
+    $reading->is_abandoned = false;
+}
 
-            // Création ou mise à jour de la lecture
-            $reading = Reading::updateOrCreate(
-                ['user_id' => $userId, 'isbn' => $isbn],
-                [
-                    'reading_content' => $progress,
-                    'is_started' => $isStarted,
-                    'is_reading' => $isReading,
-                    'is_finished' => $isFinished,
-                    'is_abandoned' => false,
-                    'started_at' => $validated['started_at'],
-                    'finished_at' => $validated['finished_at'],
-                ]
-            );
+    $reading->save();
+    $reading->load('book');
 
-            // Rechargement avec la relation `book`
-            $reading->load('book');
+    return response()->json([
+        'success' => true,
+        'message' => 'Avancement mis à jour',
+        'data' => $reading,
+    ]);
+}
 
-            return response()->json([
-                'success' => true,
-                'message' => 'Avancement mis à jour',
-                'data' => $this->formatSingleReading($reading),
-            ]);
-        }
 
     private function formatSingleReading($reading)
         {

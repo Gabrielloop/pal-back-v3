@@ -61,7 +61,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/notes', [NoteController::class, 'getBooksByUserAndNote']);
     Route::post('/notes/isbn/{isbn}', [NoteController::class, 'storeOrUpdateOrDelete']);
 
-    Route::get('/reading/all', [ReadingController::class, 'index']);
+    Route::get('/reading/collection', [ReadingController::class, 'collection']);
     Route::get('/reading/notStarted', [ReadingController::class, 'getNotStarted']);
     Route::get('/reading/reading', [ReadingController::class, 'getReading']);
     Route::get('/reading/finished', [ReadingController::class, 'getFinished']);
