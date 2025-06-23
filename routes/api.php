@@ -12,10 +12,12 @@ use App\Http\Controllers\API\UserlistBookController;
 use App\Http\Controllers\API\NoteController;
 use App\Http\Controllers\API\ReadingController;
 use App\Http\Controllers\API\BnfProxyController;
+use App\Http\Controllers\API\CoverController;;
 
 // PUBLIC
 Route::post('/user/login', [AuthController::class, 'login']);
 Route::post('/user/users', [UserController::class, 'store']);
+    Route::get('/cover/{isbn}', [CoverController::class, 'proxy']);
 
 // AUTH
 Route::middleware('auth:sanctum')->group(function () {

@@ -24,6 +24,7 @@ class Book extends Model
         'content_note',
         'content_note_total',
         'userlists',
+        'reading',
     ];
 
     protected $fillable = [
@@ -83,6 +84,37 @@ class Book extends Model
         return $this->notes()->avg('note_content');
     }
 
+    public function getReadingAttribute()
+{
+    $user = Auth::user();
+    if (!$user) return null;
+
+    $reading = $this->reading()->first();
+
+    if (!$reading) {
+        return [
+            'reading_content' => 0,
+            'is_started' => false,
+            'is_reading' => false,
+            'is_finished' => false,
+            'is_abandoned' => false,
+            'started_at' => null,
+            'finished_at' => null,
+        ];
+    }
+
+    return [
+        'reading_content' => $reading->reading_content,
+        'is_started' => $reading->is_started,
+        'is_reading' => $reading->is_reading,
+        'is_finished' => $reading->is_finished,
+        'is_abandoned' => $reading->is_abandoned,
+        'started_at' => optional($reading->started_at)?->toDateTimeString(),
+        'finished_at' => optional($reading->finished_at)?->toDateTimeString(),
+    ];
+}
+
+
     // Relations
 
     public function comments()
@@ -108,5 +140,11 @@ class Book extends Model
     public function userlists()
     {
         return $this->belongsToMany(Userlist::class, 'userlist_book', 'isbn', 'userlist_id', 'isbn', 'userlist_id');
+    }
+
+    public function reading()
+    {
+        return $this->hasOne(Reading::class, 'isbn', 'isbn')
+            ->where('user_id', optional(Auth::user())->id);
     }
 }
