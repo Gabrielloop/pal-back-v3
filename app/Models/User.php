@@ -30,7 +30,6 @@ class User extends Authenticatable
         'is_dark_mode' => 'boolean',
     ];
 
-    // Relations directes
     public function comments()
     {
         return $this->hasMany(Comment::class);
@@ -55,8 +54,6 @@ class User extends Authenticatable
     {
         return $this->hasMany(Wishlist::class);
     }
-
-    // Relations indirectes avec les livres
 
     public function favoriteBooks()
     {

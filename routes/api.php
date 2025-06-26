@@ -14,17 +14,14 @@ use App\Http\Controllers\API\ReadingController;
 use App\Http\Controllers\API\BnfProxyController;
 use App\Http\Controllers\API\CoverController;;
 
-// PUBLIC
-Route::post('/user/login', [AuthController::class, 'login']);
-Route::post('/user/users', [UserController::class, 'store']);
-    Route::get('/cover/{isbn}', [CoverController::class, 'proxy']);
+Route::post('/user/login', [AuthController::class, 'login'])->middleware('throttle:5,1');
+Route::post('/user/users', [UserController::class, 'store'])->middleware('throttle:5,1');
+Route::get('/cover/{isbn}', [CoverController::class, 'proxy'])->middleware('throttle:100,1');
 
-// AUTH
-Route::middleware('auth:sanctum')->group(function () {
+Route::middleware('auth:sanctum', 'throttle:100,1')->group(function () {
 
     Route::get('/bnf', [BnfProxyController::class, 'proxy']);
 
-    // Gestion des utilisateurs (accessibles à tous les utilisateurs connectés)
     Route::get('/users/me', [UserController::class, 'me']);
     Route::put('/users/me', [UserController::class, 'updateMe']);
     Route::post('/users/logout', [AuthController::class, 'logout']);
@@ -47,9 +44,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/wishlists/isbn/{isbn}', [WishlistController::class, 'store']);
     Route::delete('/wishlists/isbn/{isbn}', [WishlistController::class, 'destroy']);
 
-    Route::get('/userlists', [UserlistController::class, 'getUserLists']);
+    Route::get('/userlists', [UserlistController::class, 'collection']);
     Route::get('/userlists/id/{id}', [UserlistController::class, 'show']);
-    Route::get('/userlists/title/{title}', [UserlistController::class, 'getByTitle']);
     Route::post('/userlists', [UserlistController::class, 'store']);
     Route::put('/userlists/id/{id}', [UserlistController::class, 'update']);
     Route::delete('/userlists/id/{id}', [UserlistController::class, 'destroy']);
@@ -61,7 +57,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/notes', [NoteController::class, 'getBooksByUserAndNote']);
     Route::post('/notes/isbn/{isbn}', [NoteController::class, 'storeOrUpdateOrDelete']);
 
-    Route::get('/reading/all', [ReadingController::class, 'index']);
+    Route::get('/reading/collection', [ReadingController::class, 'collection']);
     Route::get('/reading/notStarted', [ReadingController::class, 'getNotStarted']);
     Route::get('/reading/reading', [ReadingController::class, 'getReading']);
     Route::get('/reading/finished', [ReadingController::class, 'getFinished']);
@@ -70,7 +66,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/reading/set/{isbn}', [ReadingController::class, 'setProgress']);
     Route::post('/reading/abandon/{isbn}', [ReadingController::class, 'abandon']);
 
-    // ADMIN
+
+
     Route::middleware(['auth:sanctum', 'is_admin'])->group(function () {
 
         Route::get('/users', [UserController::class, 'index']);

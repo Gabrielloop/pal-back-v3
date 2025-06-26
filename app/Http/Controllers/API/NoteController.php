@@ -76,8 +76,7 @@ class NoteController extends Controller
         $userId = $request->user()->id;
 
         // Récupérer les notes avec le livre associé
-        $notes = Note::with('book')
-            ->where('user_id', $userId)
+        $notes = Note::with('book') ->where('user_id', $userId)
             ->get();
 
         // Formater les données
@@ -98,6 +97,20 @@ class NoteController extends Controller
             'data' => $data,
         ],200);
     }
+
+    public function collection(Request $request)
+    {
+        $userId = $request->user()->id;
+        $readings = Reading::with('book')->where('user_id', $userId)->get();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Favoris de l’utilisateur',
+            'data' => $readings->pluck('book'),
+        ], 200);
+    }
+
+
 
     // POST /api/notes/isbn/{isbn}  (USER)
     public function storeOrUpdateOrDelete(Request $request, $isbn)
