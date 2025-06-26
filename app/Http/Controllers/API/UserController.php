@@ -9,7 +9,7 @@ use Illuminate\Http\Request;
 
 class UserController extends Controller
 {
-    // GET /api/users/
+    
     public function index()
     {
         return response()->json([
@@ -19,7 +19,6 @@ class UserController extends Controller
         ],200);
     }
 
-    // GET /api/users/me
     public function me(Request $request)
     {
         return response()->json([
@@ -29,7 +28,6 @@ class UserController extends Controller
         ],200);
     }
 
-    // PUT /api/users/me
     public function updateMe(Request $request)
     {
         $user = $request->user();
@@ -63,7 +61,6 @@ class UserController extends Controller
         ],200);
     }
 
-    // POST /api/users
     public function store(Request $request)
     {
         $validated = $request->validate([
@@ -86,7 +83,6 @@ class UserController extends Controller
         ], 201);
     }
 
-    // GET /api/users/{id}
     public function show($id)
     {
         $user = User::findOrFail($id);
@@ -98,7 +94,6 @@ class UserController extends Controller
         ],200);
     }
 
-    // PUT /api/users/update/{id}   ADMIN
     public function update(Request $request, $id)
     {
         $user = User::findOrFail($id);
@@ -118,7 +113,6 @@ class UserController extends Controller
         ],200);
     }
 
-    // DELETE /api/users/delete/{id}    ADMIN
     public function destroy($id)
     {
         $user = User::findOrFail($id);

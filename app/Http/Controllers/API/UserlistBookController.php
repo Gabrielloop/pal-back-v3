@@ -13,16 +13,15 @@ use App\Services\BookCacheService;
 
 class UserlistBookController extends Controller
 {
-    // GET /api/userlistBooks/all  (ADMIN)
+
     public function getBooksWithUserList()
     {
         $entries = DB::table('userlist_book')->get();
 
-        // Grouper par ISBN
-        $grouped = $entries->groupBy('isbn')->map(function ($items, $isbn) {
-            $book = Book::where('isbn', $isbn)->first();
 
-            // Récupérer les listes complètes
+        $grouped = $entries->groupBy('isbn')->map(function ($items, $isbn)
+        {
+            $book = Book::where('isbn', $isbn)->first();
             $lists = Userlist::whereIn('userlist_id', $items->pluck('userlist_id'))->get();
 
             return [
@@ -33,13 +32,13 @@ class UserlistBookController extends Controller
                 'year' => $book?->year,
                 'lists' => $lists,
             ];
-        })->values();
+            })->values();
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Livres et leurs listes associées',
-            'data' => $grouped,
-        ], 200);
+            return response()->json([
+                'success' => true,
+                'message' => 'Livres et leurs listes associées',
+                'data' => $grouped,
+            ], 200);
     }
     
     public function index()
@@ -51,9 +50,6 @@ class UserlistBookController extends Controller
         ], 200);
     }
 
-
-
-    // DELETE /api/userlistBooks/userlistid/{userlistid}/{isbn}   (ADMIN)
     public function deleteByUserlistId($userlistId, $isbn)
     {
 
@@ -84,7 +80,6 @@ class UserlistBookController extends Controller
     }
 
  
-    // POST /api/userlistBooks   (USER)
    public function store(Request $request)
     {
         $validated = $request->validate([
@@ -115,7 +110,6 @@ class UserlistBookController extends Controller
             ], 404);
         }
 
-        // Vérifie la présence du livre dans la liste
         if ($userlist->books()->where('userlist_book.isbn', $validated['isbn'])->exists()) {
             return response()->json([
                 'success' => false,
@@ -123,13 +117,11 @@ class UserlistBookController extends Controller
             ], 409);
         }
 
-        // Ajoute le livre à la liste
         $userlist->books()->attach($validated['isbn'], [
             'created_at' => now(),
             'updated_at' => now(),
         ]);
 
-        // Création automatique dans readings si nécessaire
         $alreadyReading = Reading::where('user_id', $userId)
             ->where('isbn', $validated['isbn'])
             ->exists();
@@ -166,7 +158,6 @@ class UserlistBookController extends Controller
     }
 
 
-    // DELETE /api/userlistBooks/{listId}/{isbn}   (USER)
     public function destroy(Request $request, $listId, $isbn)
     {
         $userlist = Userlist::where('userlist_id', $listId)

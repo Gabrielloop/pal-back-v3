@@ -52,7 +52,7 @@ class BnfProxyController extends Controller
                 
                 $bookModel = Book::find($isbn);
                 if ($bookModel) {
-                    $books[] = $bookModel; // contient les accessors dynamiques
+                    $books[] = $bookModel;
                     continue;
                 }
 

@@ -8,7 +8,6 @@ use Illuminate\Http\Request;
 
 class UserlistController extends Controller
 {
-    // GET /api/userlists/all   (ADMIN)
     public function index()
     {
         return response()->json([
@@ -18,7 +17,6 @@ class UserlistController extends Controller
         ], 200);
     }
 
-    // DELETE /api/userlists/userlistid/{userlistid}   (ADMIN)
     public function deleteUserlistByUserId($userlistId)
     {
         $userlist = Userlist::find($userlistId);
@@ -39,7 +37,6 @@ class UserlistController extends Controller
         ]);
     }
     
-    // PUT /api/userlists/userlistid/{userlistid}   (ADMIN)
     public function updateUserlistByUserId(Request $request, $userlistId)
     {
         $userlist = Userlist::find($userlistId);
@@ -66,8 +63,7 @@ class UserlistController extends Controller
         ]);
     }
 
-    // GET /api/userlists   (USER)
-    public function getUserLists(Request $request)
+    public function collection(Request $request)
     {
         $userId = $request->user()->id;
 
@@ -79,51 +75,13 @@ class UserlistController extends Controller
             'data' => $lists,
         ]);
     }
-    
-    // GET /api/userlists/id/{id}   (USER)
-    public function show($id)
-    {
-        $userlist = Userlist::with('books')->find($id);
 
-        if (!$userlist) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Liste non trouvée',
-            ], 404);
-        }
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Liste récupérée',
-            'data' => $userlist,
-        ]);
-    }
-
-
-    // GET /api/userlists/title/{title}   (USER)
-    public function getByTitle(Request $request, $title)
-    {
-        $userId = $request->user()->id;
-
-        $lists = Userlist::with('books')
-            ->where('user_id', $userId)
-            ->where('userlist_name', 'like', "%$title%")
-            ->get();
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Listes trouvées par titre',
-            'data' => $lists,
-        ]);
-    }
-
-    // POST /api/userlists   (USER)
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'userlist_name' => 'required|string|max:255',
-            'userlist_description' => 'nullable|string',
-            'userlist_type' => 'required|string',
+        'userlist_name' => 'required|string|min:3|max:100',
+        'userlist_description' => 'nullable|string|max:255',
+        'userlist_type' => 'required|string',
         ]);
 
         $userlist = Userlist::create([
@@ -138,7 +96,6 @@ class UserlistController extends Controller
         ], 201);
     }
 
-    // PUT /api/userlists/id/{id}   (USER)
     public function update(Request $request, $id)
     {
         $userlist = Userlist::where('user_id', $request->user()->id)->findOrFail($id);
@@ -158,7 +115,6 @@ class UserlistController extends Controller
         ]);
     }
 
-    // DELETE /api/userlists/id/{id}   (USER)
     public function destroy(Request $request, $id)
     {
         $userlist = Userlist::where('user_id', $request->user()->id)->find($id);
