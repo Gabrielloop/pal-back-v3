@@ -1,119 +1,93 @@
-# 📚 Pile à Lire — Back-End (Laravel)
+# 📚 Verso – Backend API (Laravel)
 
-Ce dépôt contient le code back-end du projet **Pile à Lire**, développé avec le framework **Laravel** (PHP).
+Backend de l’application **Verso**, un outil personnel de gestion de lectures. Cette API RESTful, sécurisée avec **Laravel Sanctum**, permet de gérer les utilisateurs, les livres, les listes personnalisées, les notes, les commentaires et le suivi de lecture.
 
----
+## 🧩 Fonctionnalités
 
-## 🚀 Prérequis
+-   ✅ Authentification par email/mot de passe (JWT)
+-   📂 Gestion des listes de lecture (wishlist, favoris, personnalisées)
+-   ✍️ Ajout de commentaires et de notes sur chaque livre
+-   ⏳ Suivi d’avancement de lecture (débuté, terminé, abandonné, etc.)
+-   🔍 Recherche via API externe (BNF)
+-   🔐 API sécurisée par middleware et validation serveur
 
-Avant de commencer, assurez-vous d’avoir installé :
+## 🧰 Stack technique
 
-- PHP 8.2 (via PPA ondrej/php)
-- Composer
-- MySQL ou MariaDB
-- Node.js et npm (si assets front à compiler)
-- Git
+-   **Laravel 12**
+-   **MySQL 8**
+-   **Sanctum** – Authentification par token
+-   **Eloquent ORM** – Modélisation et relations
+-   **Vite** – Intégration front & build assets
+-   **Postman** – Tests API REST
+-   **Composer** – Gestion des dépendances PHP
 
----
-
-## 🔧 Installation
-
-1. **Cloner le dépôt**
-   ```bash
-   git clone https://github.com/nom-utilisateur/pal-back-v3.git
-   cd pal-back-v3
-   ```
-
-2. **Configurer PHP 8.2**
-   ```bash
-   sudo add-apt-repository ppa:ondrej/php
-   sudo apt update
-   sudo apt install php8.2 php8.2-cli php8.2-mbstring php8.2-xml php8.2-curl php8.2-mysql php8.2-bcmath php8.2-zip unzip curl
-   ```
-
-3. **Installer les dépendances PHP**
-   ```bash
-   composer install
-   ```
-
-4. **Configurer l’environnement**
-   ```bash
-   cp .env.example .env
-   nano .env
-   ```
-   > Modifier les paramètres de connexion à la base de données (`DB_DATABASE`, `DB_USERNAME`, etc.)
-
-5. **Générer la clé d'application**
-   ```bash
-   php artisan key:generate
-   ```
-
-6. **Lancer les migrations**
-   ```bash
-   php artisan migrate
-   ```
-
----
-
-## ▶️ Lancement du projet
-
-Démarrer le serveur de développement Laravel :
+## ⚙️ Installation
 
 ```bash
+git clone https://github.com/ton-compte/verso-backend.git
+cd verso-backend
+composer install
+cp .env.example .env
+php artisan key:generate
+php artisan migrate --seed
 php artisan serve
 ```
 
-Accéder à l'application via [http://127.0.0.1:8000](http://127.0.0.1:8000)
+> ⚠️ Assurez-vous que votre base de données est configurée dans `.env`.
 
----
+## 🔒 Sécurité
+
+-   Mots de passe hashés avec `bcrypt`
+-   Authentification stateless avec **JWT** (via Laravel Sanctum)
+-   Routes protégées par `auth:sanctum` + vérification de rôle (`user` ou `admin`)
+-   Validation stricte des données avec **FormRequest**
+-   Prévention :
+    -   💉 Injections SQL via Eloquent (requêtes préparées)
+    -   🧼 Failles XSS (sorties échappées par défaut)
+    -   🛡️ Attaques CSRF inutiles (stateless)
+    -   🚫 Brute force : `throttle:30,1` sur `/login`
+
+## 🔍 Endpoints principaux
+
+```http
+POST    /api/user/login           → Connexion
+GET     /api/books/search         → Recherche API BNF
+POST    /api/userlists            → Créer une liste
+POST    /api/userlistBooks        → Ajouter un livre à une liste
+POST    /api/comments             → Ajouter un commentaire
+POST    /api/notes                → Ajouter une note
+DELETE  /api/favorites/isbn/:id   → Supprimer un favori
+```
 
 ## 🧪 Tests
 
-*À compléter selon les tests intégrés (PHPUnit, Pest, etc.)*
+-   ✅ Tests des routes via **Postman**
+-   🔎 Suivi des données en base via MySQL
+-   📜 Logs d’erreur et debug dans `storage/logs`
+-   ⚙️ Tests manuels des cas limites (doublons, accès interdit...)
 
-```bash
-php artisan test
+## 📁 Arborescence partielle
+
+```
+├── app/
+│   ├── Http/
+│   │   ├── Controllers/
+│   │   ├── Middleware/
+│   ├── Models/
+├── routes/
+│   └── api.php
+├── database/
+│   ├── migrations/
+├── .env.example
+└── composer.json
 ```
 
----
+## 📄 Licence
 
-## 📁 Structure du projet
+Projet réalisé dans le cadre du **Titre Professionnel Développeur Web et Web Mobile** – Certification niveau 5 (Bac +2).
 
-- `app/` — Logique métier (Controllers, Models, etc.)
-- `routes/` — Fichiers de routage
-- `database/` — Migrations et seeders
-- `resources/views/` — Fichiers Blade (si utilisés)
-- `public/` — Point d'entrée web
+## 👤 Auteur
 
----
-
-## 🤝 Contribution
-
-1. Fork du projet
-2. Créer une branche (`git checkout -b feature/ma-feature`)
-3. Commit (`git commit -am 'Ajout de ma feature'`)
-4. Push (`git push origin feature/ma-feature`)
-5. Créer une Pull Request
-
----
-
-## 🛠 Dépannage courant
-
-```bash
-php artisan config:clear
-php artisan cache:clear
-php artisan route:clear
-php artisan view:clear
-```
-
----
-
-## 📜 Licence
-
-Projet sous licence [MIT](LICENSE).
-
----
-
-## 👤 Auteurs
-
-- [Ton Nom / Equipe] — Développement back
+**Gabriel Henin**  
+Développeur Web Fullstack  
+Projet personnel – 2025
