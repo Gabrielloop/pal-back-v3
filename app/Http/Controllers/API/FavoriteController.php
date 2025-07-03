@@ -7,37 +7,10 @@ use App\Models\Favorite;
 use App\Models\Book;
 use Illuminate\Http\Request;
 use App\Services\BookCacheService;
-use Illuminate\Support\Facades\Cache;
 
 
 class FavoriteController extends Controller
 {
-    // GET /api/favorites/all   ADMIN
-    public function getBooksWithUsersWhoFavorited()
-    {
-        $favorites = Favorite::with('book')->get();
-
-        $grouped = $favorites->groupBy('isbn')->map(function ($items) {
-            $book = $items->first()->book;
-
-            return [
-                'isbn' => $book->isbn,
-                'title' => $book->title,
-                'author' => $book->author,
-                'publisher' => $book->publisher,
-                'year' => $book->year,
-                'users' => $items->pluck('user_id')->unique()->values()
-            ];
-        })->values();
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Livres avec utilisateurs ayant mis en favori',
-            'data' => $grouped,
-        ], 200);
-    }
-
-    // GET /api/favorites/collection   ADMIN
     public function getFavoritesCollection()
     {
 
@@ -50,7 +23,6 @@ class FavoriteController extends Controller
         ], 200);
     }
 
-    // DELETE /api/favorites/userid/{userid}/{isbn}   ADMIN
     public function destroyByUserIdAndIsbn($userid, $isbn)
     {
         $favorite = Favorite::where('user_id', $userid)
@@ -73,7 +45,6 @@ class FavoriteController extends Controller
         ], 200);
     }
 
-    // GET /api/favorites   USER
     public function getFavorites(Request $request)
     {
         $userId = $request->user()->id;
@@ -87,7 +58,6 @@ class FavoriteController extends Controller
         ], 200);
     }
 
-    // GET /api/favorites/isbn/{isbn}    USER
     public function getFavoriteByIsbn(Request $request, $isbn)
     {
         $userId = $request->user()->id;
@@ -111,7 +81,6 @@ class FavoriteController extends Controller
         ], 200);
     }
 
-    // POST /api/favorites/isbn/{isbn}   USER
     public function store(Request $request, $isbn)
     {
         $book = BookCacheService::ensurePersisted($isbn);
@@ -125,7 +94,8 @@ class FavoriteController extends Controller
 
         if (Favorite::where('user_id', $request->user()->id)
             ->where('isbn', $isbn)
-            ->exists()) {
+            ->exists()
+        ) {
             return response()->json([
                 'success' => false,
                 'message' => 'Favori déjà existant',
@@ -144,7 +114,6 @@ class FavoriteController extends Controller
         ], 201);
     }
 
-    // DELETE /api/favorites/isbn/{isbn} USER
     public function destroy(Request $request, $isbn)
     {
         $userId = $request->user()->id;

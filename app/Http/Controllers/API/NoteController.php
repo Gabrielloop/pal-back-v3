@@ -6,10 +6,10 @@ use App\Http\Controllers\Controller;
 use App\Models\Note;
 use Illuminate\Http\Request;
 use App\Services\BookCacheService;
+use App\Models\Reading;
 
 class NoteController extends Controller
 {
-    // GET /api/notes/all   (ADMIN)
     public function index()
     {
         return response()->json([
@@ -19,15 +19,14 @@ class NoteController extends Controller
         ], 200);
     }
 
-    // PUT /api/notes/userid/{userid}/{isbn}   (ADMIN)
     public function updateByUserIdAndIsbn(Request $request, $userid, $isbn)
     {
+
+        $note = Note::where('user_id', $userid)->where('isbn', $isbn)->first();
+
         $validated = $request->validate([
             'note_content' => 'required|string',
         ]);
-
-        // Vérifier si la note existe déjà
-        $note = Note::where('user_id', $userid)->where('isbn', $isbn)->first();
 
         if (!$note) {
             return response()->json([
@@ -36,7 +35,6 @@ class NoteController extends Controller
             ], 404);
         }
 
-        // Mettre à jour la note
         $note->update([
             'note_content' => $validated['note_content'],
         ]);
@@ -49,7 +47,7 @@ class NoteController extends Controller
     }
 
 
-    // DELETE /api/notes/userid/{userid}/{isbn}   (ADMIN)
+
     public function deleteByUserIdAndIsbn($userid, $isbn)
     {
         $note = Note::where('user_id', $userid)->where('isbn', $isbn)->first();
@@ -69,17 +67,14 @@ class NoteController extends Controller
         ], 200);
     }
 
-    // GET /api/notes/   (USER)
     public function getBooksByUserAndNote(Request $request)
     {
 
         $userId = $request->user()->id;
 
-        // Récupérer les notes avec le livre associé
-        $notes = Note::with('book') ->where('user_id', $userId)
+        $notes = Note::with('book')->where('user_id', $userId)
             ->get();
 
-        // Formater les données
         $data = $notes->map(function ($note) {
             return [
                 'isbn' => $note->book->isbn,
@@ -95,7 +90,7 @@ class NoteController extends Controller
             'success' => true,
             'message' => "Livres notés par l’utilisateur",
             'data' => $data,
-        ],200);
+        ], 200);
     }
 
     public function collection(Request $request)
@@ -111,8 +106,6 @@ class NoteController extends Controller
     }
 
 
-
-    // POST /api/notes/isbn/{isbn}  (USER)
     public function storeOrUpdateOrDelete(Request $request, $isbn)
     {
         $isbn = $request->input('isbn', $isbn);
@@ -125,8 +118,6 @@ class NoteController extends Controller
             ], 404);
         }
 
-
-
         $validated = $request->validate([
             'note_content' => 'required|string',
         ]);
@@ -137,8 +128,7 @@ class NoteController extends Controller
             ->where('isbn', $isbn)
             ->first();
 
-        // Si note_content est "0", on supprime la note si elle existe
-        if ($validated['note_content'] === "0")  {
+        if ($validated['note_content'] === "0") {
             if ($note) {
                 $note->delete();
 
@@ -154,7 +144,6 @@ class NoteController extends Controller
             ], 404);
         }
 
-        // Si la note existe, on la met à jour
         if ($note) {
             $note->update([
                 'note_content' => $validated['note_content'],
@@ -167,7 +156,6 @@ class NoteController extends Controller
             ], 200);
         }
 
-        // Sinon on la crée
         $newNote = Note::create([
             'user_id' => $userId,
             'isbn' => $isbn,

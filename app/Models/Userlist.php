@@ -22,7 +22,7 @@ class Userlist extends Model
 
     public function books()
     {
-        return $this->belongsToMany(Book::class, 'userlist_book', 'userlist_id', 'isbn', 'userlist_id', 'isbn');
+        return $this->belongsToMany(Book::class, 'userlist_book', 'userlist_id', 'isbn');
     }
 
 }

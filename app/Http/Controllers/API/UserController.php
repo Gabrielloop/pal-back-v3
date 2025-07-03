@@ -9,14 +9,14 @@ use Illuminate\Http\Request;
 
 class UserController extends Controller
 {
-    
+
     public function index()
     {
         return response()->json([
             'success' => true,
             'message' => 'Liste des utilisateurs',
             'data' => User::all()
-        ],200);
+        ], 200);
     }
 
     public function me(Request $request)
@@ -25,7 +25,7 @@ class UserController extends Controller
             'success' => true,
             'message' => 'Utilisateur connecté',
             'data' => $request->user()
-        ],200);
+        ], 200);
     }
 
     public function updateMe(Request $request)
@@ -44,13 +44,7 @@ class UserController extends Controller
         if (isset($validated['password'])) {
             $validated['password'] = bcrypt($validated['password']);
         }
-        \Log::info('--- updateMe debug ---');
-        \Log::info('Raw input', $request->all());
-        \Log::info('Validated data', $validated);
-        \Log::info('is_dark_mode in validated', [
-            'has' => array_key_exists('is_dark_mode', $validated),
-            'value' => $validated['is_dark_mode'] ?? null,
-        ]);
+
 
         $user->update($validated);
 
@@ -58,7 +52,7 @@ class UserController extends Controller
             'success' => true,
             'message' => 'Profil mis à jour',
             'data' => $user->fresh(),
-        ],200);
+        ], 200);
     }
 
     public function store(Request $request)
@@ -91,7 +85,7 @@ class UserController extends Controller
             'success' => true,
             'message' => 'Utilisateur trouvé',
             'data' => $user,
-        ],200);
+        ], 200);
     }
 
     public function update(Request $request, $id)
@@ -110,7 +104,7 @@ class UserController extends Controller
             'success' => true,
             'message' => 'Utilisateur mis à jour',
             'data' => $user,
-        ],200);
+        ], 200);
     }
 
     public function destroy($id)
@@ -121,6 +115,6 @@ class UserController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Utilisateur supprimé',
-        ],200);
+        ], 200);
     }
 }

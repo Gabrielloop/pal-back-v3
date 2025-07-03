@@ -69,9 +69,4 @@ class User extends Authenticatable
     {
         return $this->belongsToMany(Book::class, 'wishlists', 'user_id', 'isbn', 'id', 'isbn');
     }
-
-    public function listedBooks()
-    {
-        return $this->hasManyThrough(Book::class, UserlistBook::class, 'userlist_id', 'isbn', 'id', 'isbn');
-    }
 }

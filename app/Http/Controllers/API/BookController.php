@@ -8,8 +8,8 @@ use Illuminate\Http\Request;
 
 class BookController extends Controller
 {
-    // GET /api/books/all   ADMIN
-    public function getAllBooks()
+
+    public function index()
     {
         return response()->json([
             'success' => true,
@@ -18,8 +18,7 @@ class BookController extends Controller
         ], 200);
     }
 
-    // GET /api/books/isbn/{isbn}   USER
-    public function getBookByIsbn($isbn)
+    public function show($isbn)
     {
         $book = Book::findOrFail($isbn);
         return response()->json([
@@ -29,8 +28,7 @@ class BookController extends Controller
         ], 200);
     }
 
-    // GET /api/books/title/{title} USER
-    public function getBooksByTitle($title)
+    public function showByTitle($title)
     {
         $books = Book::where('title', 'like', '%' . $title . '%')->get();
         return response()->json([
@@ -40,8 +38,7 @@ class BookController extends Controller
         ], 200);
     }
 
-    // POST /api/books/add  USER
-    public function saveBook(Request $request)
+    public function store(Request $request)
     {
         $validated = $request->validate([
             'isbn' => 'required|string|unique:books',
@@ -60,8 +57,7 @@ class BookController extends Controller
         ], 201);
     }
 
-    // PUT /api/books/isbn/{isbn} USER
-    public function updateBook(Request $request, $isbn)
+    public function update(Request $request, $isbn)
     {
         $book = Book::findOrFail($isbn);
 
@@ -78,11 +74,10 @@ class BookController extends Controller
             'success' => true,
             'message' => 'Livre modifié',
             'data' => $book
-        ],200);
+        ], 200);
     }
 
-    // DELETE /api/books/isbn/{isbn} ADMIN
-    public function deleteBook($isbn)
+    public function destroy($isbn)
     {
         $book = Book::find($isbn);
         if ($book) {
@@ -95,12 +90,5 @@ class BookController extends Controller
         }
 
         return response()->json(['message' => 'Livre non trouvé'], 404);
-        
-    }
-
-    // GET /api/books/error
-    public function error()
-    {
-        return response()->json(['message' => 'Erreur serveur'], 500);
     }
 }

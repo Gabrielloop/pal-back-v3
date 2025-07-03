@@ -9,7 +9,6 @@ use App\Services\BookCacheService;
 
 class CommentController extends Controller
 {
-    // GET /api/comments/all    ADMIN
     public function index()
     {
         return response()->json([
@@ -19,12 +18,11 @@ class CommentController extends Controller
         ], 200);
     }
 
-    // DELETE /api/comments/userid/{userid}/{isbn}/   ADMIN
     public function destroyByUserIdAndIsbn($userid, $isbn)
     {
         $comment = Comment::where('user_id', $userid)
-                        ->where('isbn', $isbn)
-                        ->first();
+            ->where('isbn', $isbn)
+            ->first();
 
         if (!$comment) {
             return response()->json([
@@ -41,14 +39,12 @@ class CommentController extends Controller
             'data' => $comment,
         ]);
     }
-    
 
-    // PUT /api/com/api/comments/userid/{userid}/{isbn}/   ADMIN
     public function updateByUserIdAndIsbn(Request $request, $userid, $isbn)
     {
         $comment = Comment::where('user_id', $userid)
-                        ->where('isbn', $isbn)
-                        ->firstOrFail();
+            ->where('isbn', $isbn)
+            ->firstOrFail();
 
         $validated = $request->validate([
             'comment_content' => 'required|string',
@@ -63,14 +59,13 @@ class CommentController extends Controller
         ]);
     }
 
-    // GET /api/comments/isbn/{isbn}  USER
     public function getByIsbnForCurrentUser(Request $request, $isbn)
     {
         $userId = $request->user()->id;
 
         $comment = Comment::where('isbn', $isbn)
-                        ->where('user_id', $userId)
-                        ->first();
+            ->where('user_id', $userId)
+            ->first();
 
         if (!$comment) {
             return response()->json([
@@ -86,7 +81,6 @@ class CommentController extends Controller
         ]);
     }
 
-    // GET /api/comments/content/{content}  ADMIN
     public function getByContent($content)
     {
         $comments = Comment::where('comment_content', 'like', "%$content%")->get();
@@ -98,8 +92,7 @@ class CommentController extends Controller
         ]);
     }
 
-    // GET /api/comments/  USER
-     public function getCommentForUser(Request $request)
+    public function getCommentForUser(Request $request)
     {
         $userId = $request->user()->id;
         $comments = Comment::where('user_id', $userId)->get();
@@ -109,83 +102,80 @@ class CommentController extends Controller
             'data' => $comments,
         ], 200);
     }
-    
 
-    // POST /api/comments/   USER
-        public function addOrUpdateComment(Request $request)
-        {
+    public function addOrUpdateComment(Request $request)
+    {
 
-            $isbn = $request->input('isbn');
-            $book = BookCacheService::ensurePersisted($isbn);
+        $isbn = $request->input('isbn');
+        $book = BookCacheService::ensurePersisted($isbn);
 
-            if (!$book) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Livre introuvable dans le cache.',
-                ], 404);
-            }
+        if (!$book) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Livre introuvable dans le cache.',
+            ], 404);
+        }
 
 
-            $validated = $request->validate([
-                'isbn' => 'required|string|exists:books,isbn',
-                'comment_content' => 'nullable|string|max:255',
-            ]);
+        $validated = $request->validate([
+            'isbn' => 'required|string|exists:books,isbn',
+            'comment_content' => 'nullable|string|max:255',
+        ]);
 
-            $userId = $request->user()->id;
+        $userId = $request->user()->id;
 
-            $comment = Comment::where('isbn', $validated['isbn'])
-                ->where('user_id', $userId)
-                ->first();
+        $comment = Comment::where('isbn', $validated['isbn'])
+            ->where('user_id', $userId)
+            ->first();
 
-            if (empty(trim($validated['comment_content']))) {
-                if ($comment) {
-                    $comment->delete();
-                    return response()->json([
-                        'success' => true,
-                        'message' => 'Commentaire supprimé',
-                    ]);
-                } else {
-                    return response()->json([
-                        'success' => false,
-                        'message' => 'Aucun commentaire à supprimer',
-                    ], 404);
-                }
-            }
-
+        if (empty(trim($validated['comment_content']))) {
             if ($comment) {
-                $comment->update([
-                    'comment_content' => $validated['comment_content'],
-                ]);
-
+                $comment->delete();
                 return response()->json([
                     'success' => true,
-                    'message' => 'Commentaire mis à jour',
-                    'data' => $comment,
+                    'message' => 'Commentaire supprimé',
                 ]);
+            } else {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Aucun commentaire à supprimer',
+                ], 404);
             }
+        }
 
-            $comment = Comment::create([
-                'isbn' => $validated['isbn'],
-                'user_id' => $userId,
+        if ($comment) {
+            $comment->update([
                 'comment_content' => $validated['comment_content'],
             ]);
 
             return response()->json([
                 'success' => true,
-                'message' => 'Commentaire ajouté',
+                'message' => 'Commentaire mis à jour',
                 'data' => $comment,
-            ], 201);
+            ]);
         }
 
-    
-    // DELETE /api/comments/isbn/{isbn}   USER
+        $comment = Comment::create([
+            'isbn' => $validated['isbn'],
+            'user_id' => $userId,
+            'comment_content' => $validated['comment_content'],
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Commentaire ajouté',
+            'data' => $comment,
+        ], 201);
+    }
+
+
     public function destroy($isbn, Request $request)
     {
         $userId = $request->user()->id;
 
         $comment = Comment::where('isbn', $isbn)
-                        ->where('user_id', $userId)
-                        ->first();
+            ->where('user_id', $userId)
+            ->first();
 
         if (!$comment) {
             return response()->json([
@@ -201,14 +191,5 @@ class CommentController extends Controller
             'message' => 'Commentaire supprimé',
             'data' => $comment,
         ]);
-    }
-
-
-    public function error()
-    {
-        return response()->json([
-            'success' => false,
-            'message' => 'Erreur serveur simulée',
-        ], 500);
     }
 }

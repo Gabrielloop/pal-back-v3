@@ -19,6 +19,14 @@ class UserlistController extends Controller
 
     public function deleteUserlistByUserId($userlistId)
     {
+
+        $userId = $request->user()->id;
+
+        $userlist = Userlist::where('userlist_id', $userlistId)
+                            ->where('user_id', $userId)
+                            ->first();
+
+                            
         $userlist = Userlist::find($userlistId);
 
         if (!$userlist) {
@@ -39,6 +47,12 @@ class UserlistController extends Controller
     
     public function updateUserlistByUserId(Request $request, $userlistId)
     {
+        $userId = $request->user()->id;
+
+        $userlist = Userlist::where('userlist_id', $userlistId)
+                            ->where('user_id', $userId)
+                            ->first();
+     
         $userlist = Userlist::find($userlistId);
 
         if (!$userlist) {

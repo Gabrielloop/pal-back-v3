@@ -24,10 +24,11 @@ Route::middleware('auth:sanctum', 'throttle:100,1')->group(function () {
 
     Route::get('/users/me', [UserController::class, 'me']);
     Route::put('/users/me', [UserController::class, 'updateMe']);
+    Route::get('/users/me/control', [AuthController::class, 'controlMe']);
     Route::post('/users/logout', [AuthController::class, 'logout']);
 
-    Route::get('/books/isbn/{isbn}', [BookController::class, 'getBookByIsbn']);
-    Route::get('/books/title/{title}', [BookController::class, 'getBooksByTitle']);
+    Route::get('/books/isbn/{isbn}', [BookController::class, 'show']);
+    Route::get('/books/title/{title}', [BookController::class, 'showByTitle']);
 
     Route::get('/comments', [CommentController::class, 'getCommentForUser']);
     Route::get('/comments/isbn/{isbn}', [CommentController::class, 'getByIsbnForCurrentUser']);
@@ -75,17 +76,16 @@ Route::middleware('auth:sanctum', 'throttle:100,1')->group(function () {
         Route::put('/users/{id}', [UserController::class, 'update']);
         Route::delete('users/{id}', [UserController::class, 'destroy']);
 
-        Route::get('/books/all', [BookController::class, 'getAllBooks']);
-        Route::post('/books', [BookController::class, 'saveBook']);
-        Route::put('/books/isbn/{isbn}', [BookController::class, 'updateBook']);
-        Route::delete('/books/isbn/{isbn}', [BookController::class, 'deleteBook']);
+        Route::get('/books/all', [BookController::class, 'index']);
+        Route::post('/books', [BookController::class, 'store']);
+        Route::put('/books/isbn/{isbn}', [BookController::class, 'update']);
+        Route::delete('/books/isbn/{isbn}', [BookController::class, 'destroy']);
 
         Route::get('/comments/all', [CommentController::class, 'index']);
         Route::get('/comments/content/{content}', [CommentController::class, 'getByContent']);
         Route::put('/comments/userid/{userid}/{isbn}/', [CommentController::class, 'updateByUserIdAndIsbn']);
         Route::delete('/comments/userid/{userid}/{isbn}/', [CommentController::class, 'destroyByUserIdAndIsbn']);
 
-        Route::get('/favorites/all', [FavoriteController::class, 'getBooksWithUsersWhoFavorited']);
         Route::get('/favorites/collection', [FavoriteController::class, 'getFavoritesCollection']);
         Route::delete('/favorites/userid/{userid}/{isbn}', [FavoriteController::class, 'destroyByUserIdAndIsbn']);
 
@@ -96,7 +96,7 @@ Route::middleware('auth:sanctum', 'throttle:100,1')->group(function () {
         Route::get('/userlists/all', [UserlistController::class, 'index']);
         Route::put('/userlists/userlistid/{userlistid}', [UserlistController::class, 'updateUserlistByUserId']);
         Route::delete('/userlists/userlistid/{userlistid}', [UserlistController::class, 'deleteUserlistByUserId']);
-        
+
         Route::get('/userlistBooks/all', [UserlistBookController::class, 'getBooksWithUserList']);
         Route::get('/userlistBooks/collection', [UserlistBookController::class, 'index']);
         Route::delete('/userlistBooks/userlistid/{userlistid}/{isbn}', [UserlistBookController::class, 'deleteByUserlistId']);
@@ -108,6 +108,5 @@ Route::middleware('auth:sanctum', 'throttle:100,1')->group(function () {
         Route::get('/readings/all', [ReadingController::class, 'index']);
         Route::put('/readings/userid/{userid}/{isbn}', [ReadingController::class, 'updateByUserIdAndIsbn']);
         Route::delete('/readings/userid/{userid}/{isbn}', [ReadingController::class, 'destroyByUserIdAndIsbn']);
-
     });
 });

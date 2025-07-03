@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use App\Models\User;
 
+
 class AuthController extends Controller
 {
 
@@ -17,11 +18,13 @@ class AuthController extends Controller
             'password' => 'required',
         ]);
 
-        if (!User::where('email', $request->email)->exists()) {
-            return response()->json(['message' => 'Utilisateur non trouvé'], 404);
+        if (!Auth::attempt($credentials)) {
+            return response()->json([
+                'message' => 'Identifiants invalides'
+            ], 401);
         }
 
-        $user = User::where('email', $request->email)->firstOrFail();
+        $user = Auth::user();
         $token = $user->createToken('auth_token')->plainTextToken;
 
         return response()->json([
@@ -38,6 +41,15 @@ class AuthController extends Controller
         $request->user()->currentAccessToken()->delete();
         return response()->json([
             'success' => true,
-            'message' => 'Déconnecté']);
+            'message' => 'Déconnecté'
+        ]);
+    }
+
+    public function controlMe(Request $request)
+    {
+        return response()->json([
+            'success' => true,
+            'user' => $request->user(),
+        ]);
     }
 }
